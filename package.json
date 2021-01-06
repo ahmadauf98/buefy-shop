@@ -1,0 +1,68 @@
+{
+  "name": "buefy-shop",
+  "version": "0.0.1",
+  "description": "Nuxt.js project",
+  "author": "14nrv",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "NODE_ENV=development nuxt",
+    "build": "NODE_ENV=production nuxt build",
+    "analyze": "ANALYZE=true nuxt build",
+    "start": "NODE_ENV=production nuxt start",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "lint-staged": "lint-staged",
+    "test": "NODE_ENV=test jest",
+    "test:tdd": "yarn test --watchAll --coverage",
+    "test:coverage": "yarn test --coverage"
+  },
+  "pre-commit": "lint-staged, test",
+  "lint-staged": {
+    "*.js": "eslint --ext .js",
+    "*.vue": "eslint --ext .vue"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.1",
+    "@nuxtjs/dotenv": "^1.1.0",
+    "@nuxtjs/google-analytics": "^2.0.2",
+    "@nuxtjs/pwa": "^3.3.3",
+    "axios": "^0.18.0",
+    "bulma": "^0.9.1",
+    "bulma-steps": "^2.2.1",
+    "bulma-switch": "^2.0.0",
+    "firebase": "^8.2.1",
+    "lazysizes": "^5.3.0",
+    "nuxt": "^2.14.12",
+    "prettier": "^2.2.1",
+    "slugify": "^1.4.6",
+    "stylus": "^0.54.5",
+    "vue-form-json": "^3.2.0",
+    "vue-stripe-elements-plus": "^0.2.8",
+    "vuex-persistedstate": "^2.5.2",
+    "vuexfire": "^2.3.0"
+  },
+  "devDependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "@vue/test-utils": "1.0.0-beta.11",
+    "babel-eslint": "^8.2.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "css-loader": "^0.28.9",
+    "identity-obj-proxy": "^3.0.0",
+    "lint-staged": "^6.1.0",
+    "postcss-preset-env": "^6.7.0",
+    "pre-commit": "^1.2.2",
+    "stylus-loader": "^3.0.1"
+  },
+  "jest-junit": {
+    "output": "coverage/junit/js-test-results.xml"
+  },
+  "eslint-junit": {
+    "output": "coverage/junit/js-eslint-results.xml"
+  },
+  "engines": {
+    "node": ">=12.18.2"
+  }
+}
