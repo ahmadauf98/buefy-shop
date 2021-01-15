@@ -1,127 +1,79 @@
 <template>
-  <div class="card is-radius">
-    <div class="card-image">
-      <NuxtLink
-        exact="exact"
-        :to="{ name: 'products-slug', params: { slug: `${slug}` } }"
+  <div>
+    <v-row>
+      <v-col
+        v-for="(product, index) in products"
+        :key="index"
+        cols="6"
+        md="5"
+        lg="4"
       >
-        <picture class="image">
-          <source
-            :data-srcset="`./../../products/${item.img}.webp`"
-            type="image/webp"
-          />
-          <img
-            class="lazyload"
-            :data-srcset="`./../../products/${item.img}.png`"
-            :alt="`Image of ${item.name}`"
-          />
-        </picture>
-      </NuxtLink>
-    </div>
-    <div class="card-content">
-      <div class="media">
-        <div class="media-content">
-          <NuxtLink
-            exact="exact"
-            :to="{ name: 'products-slug', params: { slug: `${slug}` } }"
-          >
-            <p class="title is-5">{{ item.name }}</p>
-            <p class="item-price">{{ item.price | usdollar }}</p>
-          </NuxtLink>
-        </div>
-        <div class="media-right">
-          <p class="field">
-            <button
-              class="button icon is-large add"
-              @click="addItem(item)"
-              aria-label="Add to cart"
-            >
-              <span class="fa-stack"
-                ><i class="fa fa-circle fa-stack-2x"></i
-                ><i class="fa fa-cart-plus fa-stack-1x fa-inverse"></i
-              ></span>
-            </button>
-          </p>
-        </div>
-      </div>
-    </div>
+        <v-card class="pa-5 text-center" elevation="5" min-height="350">
+          <!-- Product Image -->
+          <img :src="product.img" alt="..." />
+
+          <v-row class="text-left d-flex">
+            <!-- Product Name & Price -->
+            <v-col cols="9">
+              <NuxtLink :to="`/products/${product.product_id}`" class="text">
+                <h1 class="text-h6 font-weight-medium mb-2 text-color-black">
+                  {{ product.name }} <br />
+
+                  <span
+                    class="text-subtitle-1 font-weight-regular text-color-black"
+                  >
+                    ${{ product.price }}</span
+                  >
+                </h1>
+              </NuxtLink>
+            </v-col>
+
+            <!-- Add to Card Button -->
+            <v-col cols="3" class="px-0 mx-0">
+              <v-btn color="#363636" fab dark depressed>
+                <i class="fa fa-cart-plus fa-2x" aria-hidden="true"></i>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script>
-import { createNamespacedHelpers } from 'vuex'
-import { slug } from '@/helpers'
-const { mapActions } = createNamespacedHelpers('cart')
+import { mapState } from 'vuex'
 
 export default {
-  name: 'Card',
-  filters: {
-    usdollar: (value) => `$${value}`,
+  data() {
+    return {}
   },
-  props: {
-    item: {
-      type: Object,
-      required: true,
-    },
-  },
+
+  // Fetch Products Data from Vuex
   computed: {
-    slug() {
-      return slug(this.item.name)
-    },
-  },
-  methods: {
-    ...mapActions(['addItem']),
+    ...mapState(['products']),
   },
 }
 </script>
 
-<style scoped lang="stylus">
-.card
-  display flex
-  flex-direction column
-  justify-content center
-  align-items center
+<style scoped>
+.text-color-black {
+  color: #363636;
+}
 
-  .image
-    img
-      padding-top 1.5rem
+.text-color-blue {
+  color: #3298dd;
+}
 
-  .card-content
-    width 100%
+.text {
+  text-decoration: none;
+}
 
-  .title,
-  .subtitle
-    color inherit
-  .title
-    margin-bottom .5rem
-  .button
-    border 0
-    padding 0
+.text:hover h1 {
+  color: #3298dd;
+}
 
-    .fa-circle
-      transition color .5s
-
-    .fa-cart-plus
-      font-size 1.4rem
-
-    &:hover
-      .fa-circle
-        color #209cee
-
-    &.icon
-      cursor pointer
-
-  a
-    color inherit
-
-    &:hover
-      color #3273dc
-
-.lazyload,
-.lazyloading
-  opacity 0
-
-.lazyloaded
-  opacity 1
-  transition opacity 150ms
+.text:hover span {
+  color: #3298dd;
+}
 </style>

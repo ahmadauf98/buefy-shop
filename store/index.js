@@ -1,23 +1,33 @@
-import Vuex from 'vuex'
-import { firebaseMutations } from 'vuexfire'
-import pkg from '@/store/modules/package'
-import cart from '@/store/modules/cart'
-import checkout from '@/store/modules/checkout'
-import product from '@/store/modules/product'
+export const strict = false
 
-const store = () => {
-  return new Vuex.Store({
-    strict: process.env.NODE_ENV !== 'production',
-    modules: {
-      cart,
-      checkout,
-      product,
-      pkg
-    },
-    mutations: {
-      ...firebaseMutations
-    }
-  })
+export const state = () => ({
+  // Notifications
+  notification: {
+    alert: '',
+    alertIcon: '',
+    alertIconStyle: '',
+    colorIcon: '',
+    snackbar: false,
+    timeout: 1800,
+  },
+
+  // List of Products
+  products: '',
+})
+
+export const mutations = {
+  SET_NOTIFICATION(
+    state,
+    { alert, alertIcon, alertIconStyle, colorIcon, snackbar }
+  ) {
+    state.notification.alert = alert
+    state.notification.alertIcon = alertIcon
+    state.notification.alertIconStyle = alertIconStyle
+    state.notification.colorIcon = colorIcon
+    state.notification.snackbar = snackbar
+  },
+
+  SET_PRODUCTS(state, products) {
+    state.products = products
+  },
 }
-
-export default store

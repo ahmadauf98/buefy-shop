@@ -1,19 +1,17 @@
 <template>
-  <div class="container">
-    <div class="section">
-      <AppHero />
+  <v-app>
+    <div>
+      <div class="section">
+        <AppHero />
+      </div>
+      <div>
+        <v-row>
+          <v-col cols="3"><AppSidebar /></v-col>
+          <v-col cols="9"><AppProductListItem /></v-col>
+        </v-row>
+      </div>
     </div>
-    <div class="section capsule is-clearfix">
-      <AppSidebar :pricerange.sync="highprice" />
-      <transition-group class="content is-pulled-right" name="items" tag="div">
-        <AppProductListItem
-          v-for="product in products"
-          :key="product['.key']"
-          :item="product"
-        />
-      </transition-group>
-    </div>
-  </div>
+  </v-app>
 </template>
 
 <script>
@@ -22,17 +20,13 @@ import Hero from '@/components/Hero'
 import ProductListItem from '@/components/ProductListItem'
 import Sidebar from '@/components/Sidebar'
 
-const { mapGetters } = createNamespacedHelpers('product')
-
 export default {
   components: {
     AppHero: Hero,
     AppProductListItem: ProductListItem,
     AppSidebar: Sidebar,
   },
-  computed: {
-    ...mapGetters(['products', 'highprice']),
-  },
+  computed: {},
   watch: {
     products: {
       handler(products) {
@@ -41,19 +35,52 @@ export default {
       deep: true,
     },
   },
-  created() {
-    this.$store.dispatch('product/setProductsRef')
-  },
+  created() {},
 }
 </script>
 
-<style lang="stylus" scoped>
-.content
-  /*no grid support*/
-  width 79.7872%
-  /* grid */
-  display grid
-  grid-template-columns repeat(3, 1fr)
-  grid-gap 1rem
-  padding 0
+<style scoped>
+.text-color-black {
+  color: #363636;
+}
+
+.text {
+  text-decoration: none;
+}
+
+.text-capitalize {
+  text-transform: capitalize;
+}
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  .contain {
+    padding: 0px 20px;
+  }
+}
+
+/* Medium devices (landscape tablets, 960px and up) */
+@media only screen and (min-width: 960px) {
+  .contain {
+    padding: 0px 5px;
+  }
+}
+
+/* Large devices (laptops/desktops, 1264px and up) */
+@media only screen and (min-width: 1264px) {
+  .contain {
+    padding: 0px 50px;
+  }
+}
+
+/* Extra large devices (large laptops and desktops, 1904px and up) */
+@media only screen and (min-width: 1904px) {
+  .contain {
+    padding: 0px 275px;
+  }
+}
 </style>

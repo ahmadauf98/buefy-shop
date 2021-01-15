@@ -1,9 +1,9 @@
 <template>
-  <section class="hero">
+  <v-app class="hero">
     <div class="hero-head">
       <AppHeader></AppHeader>
     </div>
-    <div class="hero-body">
+    <div class="hero-body contain">
       <nuxt />
     </div>
     <div class="hero-footer">
@@ -11,7 +11,7 @@
         <p>Made with love from Paris</p>
       </div>
     </div>
-  </section>
+  </v-app>
 </template>
 
 <script>
@@ -21,6 +21,40 @@ export default {
   components: { AppHeader: Header },
 }
 </script>
+
+<style scoped>
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  .contain {
+    padding: 0px 20px;
+  }
+}
+
+/* Medium devices (landscape tablets, 960px and up) */
+@media only screen and (min-width: 960px) {
+  .contain {
+    padding: 0px 5px;
+  }
+}
+
+/* Large devices (laptops/desktops, 1264px and up) */
+@media only screen and (min-width: 1264px) {
+  .contain {
+    padding: 0px 50px;
+  }
+}
+
+/* Extra large devices (large laptops and desktops, 1904px and up) */
+@media only screen and (min-width: 1904px) {
+  .contain {
+    padding: 0px 300px;
+  }
+}
+</style>
 
 <style lang="stylus">
 @require '../node_modules/bulma/css/bulma.min.css'

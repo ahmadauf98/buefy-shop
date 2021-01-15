@@ -1,114 +1,254 @@
 <template>
-  <header
-    class="navbar is-light"
-    :class="{ 'is-fixed-top': isIndexRoute }"
-    role="navigation"
-    aria-label="main navigation"
-  >
-    <div class="container is-flex-touch">
+  <div>
+    <!-- Navigation Bar -->
+    <v-app-bar
+      class="d-none d-sm-inline contain"
+      elevate-on-scroll
+      color="#f5f5f5"
+      app
+    >
+      <!-- Brand Logo -->
       <div class="navbar-brand">
-        <nuxt-link class="navbar-item" exact="exact" :to="{ name: 'index' }"
-          ><strong><i>PlusGrosLeLogo</i></strong></nuxt-link
+        <NuxtLink class="navbar-item" exact="exact" :to="{ name: 'index' }"
+          ><strong><i>PlusGrosLeLogo</i></strong></NuxtLink
         >
       </div>
-      <div class="navbar-end is-flex-touch">
-        <div class="navbar-item">
-          <div class="field">
-            <p class="control">
-              <a
-                class="button is-light is-marginless-mobile"
-                target="_blank"
-                href="https://github.com/14nrv/buefy-shop"
-                rel="noopener"
-                ><span class="icon"><i class="fab fa-github"></i></span
-                ><span class="is-hidden-mobile">Fork</span></a
+      <v-spacer></v-spacer>
+
+      <!-- If user login => Cart|User Btn, If user not auth => Sign Up|Login Btn -->
+
+      <!-- Cart Btn -->
+      <v-btn
+        v-show="isLogged == true"
+        to="/cart"
+        color="#1A202C"
+        class="text-body-1 text-capitalize font-weight-light text-color-black px-3 py-5 mr-1"
+        text
+      >
+        <v-icon size="20" class="mr-1" color="#494949">mdi-cart</v-icon>
+        Cart
+      </v-btn>
+
+      <!-- Username Dropdown -->
+      <v-menu open-on-hover offset-y left>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-show="isLogged == true"
+            text
+            color="#1A202C"
+            class="px-3 py-5"
+            v-bind="attrs"
+            v-on="on"
+          >
+            <!-- Profile Photo -->
+            <v-avatar class="mr-1 py-5" size="35">
+              <img :src="firebase_data.profile_photo" alt="..." />
+            </v-avatar>
+            <v-icon>mdi-chevron-down</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list dense width="300px">
+          <!-- Account Header -->
+          <v-list-item class="text-center mb-n5">
+            <v-list-item-title class="text-body-2">Account</v-list-item-title>
+          </v-list-item>
+
+          <v-divider class="mx-3"></v-divider>
+
+          <!-- Profile Overview -->
+          <v-list-item class="mt-n3 mb-n3">
+            <v-row class="d-flex">
+              <v-col cols="2">
+                <!-- Profile Photo -->
+                <v-avatar class="mr-1" size="40">
+                  <img :src="firebase_data.profile_photo" alt="..." />
+                </v-avatar>
+              </v-col>
+              <v-col cols="10">
+                <h1 class="text-body-2 font-weight-bold">
+                  {{ firebase_data.name }}
+                </h1>
+                <h1 class="caption font-weight-regular">
+                  {{ firebase_data.email_address }}
+                </h1>
+              </v-col>
+            </v-row>
+          </v-list-item>
+
+          <v-divider class="mx-3"></v-divider>
+          <!-- Seller Dashboard -->
+          <v-list-item to="/manager/auth/settings" class="mt-n5 mb-n1">
+            <v-list-item-title class="d-flex align-center">
+              <v-icon class="mr-1 ml-0" size="24" color="#3c3c3c"
+                >mdi-store-outline</v-icon
               >
-            </p>
-          </div>
-        </div>
-        <div class="navbar-item">
-          <div class="field">
-            <p class="control">
-              <NuxtLink
-                class="button is-light"
-                exact="exact"
-                :to="{ name: 'cart' }"
-                ><span class="icon cartitem">
-                  <div class="cartcount" v-if="total &gt; 0">{{ total }}</div>
-                  <i class="fa fa-shopping-cart"></i> </span
-                ><span class="is-hidden-mobile">Cart</span></NuxtLink
+              Seller Center</v-list-item-title
+            >
+          </v-list-item>
+
+          <!-- Settings Button -->
+          <v-list-item to="/manager/auth/settings" class="mb-n5">
+            <v-list-item-title class="d-flex align-center">
+              <v-icon class="mr-1 ml-0" size="24" color="#3c3c3c"
+                >mdi-cog-outline</v-icon
               >
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
+              Settings</v-list-item-title
+            >
+          </v-list-item>
+
+          <v-divider class="mx-3"></v-divider>
+
+          <!-- Logout Button -->
+          <v-list-item @click.prevent="logout()" class="mt-n5">
+            <v-list-item-title class="d-flex align-center">
+              <v-icon class="mr-1 ml-0" size="24" color="#3c3c3c"
+                >mdi-logout</v-icon
+              >
+              Log out</v-list-item-title
+            >
+          </v-list-item>
+        </v-list>
+      </v-menu>
+
+      <!-- Sign Up Btn -->
+      <v-btn
+        v-show="isLogged == false"
+        to="/buyer/signup"
+        color="#1A202C"
+        class="text-body-1 text-capitalize font-weight-light text-color-black px-3 py-5 mr-1"
+        text
+      >
+        <v-icon class="mr-1 ml-0" size="24" color="#3c3c3c"
+          >mdi-account-plus</v-icon
+        >
+        Sign Up
+      </v-btn>
+
+      <!-- Login Btn -->
+      <v-btn
+        v-show="isLogged == false"
+        to="/buyer/login"
+        color="#1A202C"
+        class="text-body-1 text-capitalize font-weight-light text-color-black px-3 py-5 mr-1"
+        text
+      >
+        <v-icon class="mr-1 ml-0" size="24" color="#3c3c3c">mdi-login</v-icon>
+        Login
+      </v-btn>
+    </v-app-bar>
+
+    <v-overlay :value="loadingOverlay" :opacity="loadingOpacity" color="white">
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    </v-overlay>
+  </div>
 </template>
 
 <script>
-import { createNamespacedHelpers } from 'vuex'
-
-const { mapGetters } = createNamespacedHelpers('cart')
+import firebase from 'firebase/app'
+import 'firebase/auth'
+import 'firebase/firestore'
 
 export default {
   name: 'AppHeader',
-  head() {
+
+  data() {
     return {
-      htmlAttrs: {
-        class: this.isIndexRoute && 'has-navbar-fixed-top',
-      },
+      // User Authentication
+      isLogged: false,
+
+      // Data fetch from firebase
+      firebase_data: '',
+
+      // Loading Overlay
+      loadingOverlay: false,
+      loadingOpacity: 1,
     }
   },
-  computed: {
-    ...mapGetters(['total']),
-    isIndexRoute() {
-      return this.$route.name === 'index'
+
+  mounted() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.isLogged = true
+
+        firebase
+          .firestore()
+          .collection('users')
+          .doc(user.uid)
+          .onSnapshot((doc) => {
+            this.firebase_data = doc.data()
+          })
+      } else {
+        this.isLogged = false
+      }
+    })
+  },
+
+  watch: {
+    loadingOverlay(val) {
+      val &&
+        setTimeout(() => {
+          this.loadingOverlay = false
+        }, 1000)
+    },
+  },
+
+  methods: {
+    async logout() {
+      this.loadingOverlay = true
+      try {
+        await firebase.auth().signOut()
+      } catch (error) {
+        this.loadingOverlay = false
+        console.log(error.message)
+      }
     },
   },
 }
 </script>
 
-<style lang="stylus">
-.hero-head
-  .navbar
-    &.is-light
-      background-color #f5f5f5
+<style scoped>
+.text-color-black {
+  color: #363636;
+}
 
-    > .container
-      flex-wrap: wrap
-      justify-content: space-between
+.text {
+  text-decoration: none;
+}
 
-  .cartitem
-    position relative
-    float right
+.text-capitalize {
+  text-transform: capitalize;
+}
 
-  .cartcount
-    font-family 'Barlow', sans-serif
-    position absolute
-    background #ff2211
-    color white
-    text-align center
-    padding-top 2px
-    height 18px
-    width @height
-    font-size 10px
-    margin -8px 0 0 8px
-    border-radius 50%
-    font-weight 700
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+}
 
-  @media (max-width: 600px)
-    .button
-      padding-left 0.2rem
-      padding-right @padding-left
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  .contain {
+    padding: 0px 20px;
+  }
+}
 
-      .icon
-        &:first-child
-          &:not(:last-child)
-            margin-left 0
-            margin-right 0
+/* Medium devices (landscape tablets, 960px and up) */
+@media only screen and (min-width: 960px) {
+  .contain {
+    padding: 0px 5px;
+  }
+}
 
-    .navbar-item
-      padding-left .5rem
-      padding-right @padding-left
+/* Large devices (laptops/desktops, 1264px and up) */
+@media only screen and (min-width: 1264px) {
+  .contain {
+    padding: 0px 50px;
+  }
+}
+
+/* Extra large devices (large laptops and desktops, 1904px and up) */
+@media only screen and (min-width: 1904px) {
+  .contain {
+    padding: 0px 270px;
+  }
+}
 </style>
