@@ -38,7 +38,6 @@
 import { createNamespacedHelpers } from 'vuex'
 import { slug } from '@/helpers'
 
-const { mapGetters } = createNamespacedHelpers('product')
 
 const getAllProducts = (store) => store.getters['product/allProducts']
 
@@ -47,13 +46,10 @@ const isProductNameSameAsSlug = (store, params) =>
 
 export default {
   fetch({ store, error, params }) {
-    !store.state.products && store.dispatch('product/setProductsRef')
-
     !isProductNameSameAsSlug(store, params) &&
       error({ statusCode: 404, message: 'Product not found' })
   },
   computed: {
-    ...mapGetters(['productFromSlugParamRoute']),
     item() {
       return this.productFromSlugParamRoute(this.$route.params.slug)
     },

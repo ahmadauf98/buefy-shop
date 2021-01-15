@@ -69,8 +69,6 @@ import stepMenuContent from '@/components/StepMenu/stepMenuContent.json'
 import shippingFields from './shippingFields'
 import 'vue-form-json/dist/vue-form-json.css'
 
-const { mapGetters, mapActions } = createNamespacedHelpers('cart')
-
 export default {
   head: {
     script: [{ src: 'https://js.stripe.com/v3/' }],
@@ -88,7 +86,6 @@ export default {
     shippingFields,
   }),
   computed: {
-    ...mapGetters(['cart', 'total', 'amount', 'success', 'actualStep']),
     stepMenuContent: () => stepMenuContent,
   },
   mounted() {

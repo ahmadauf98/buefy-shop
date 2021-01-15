@@ -1,112 +1,154 @@
 <template>
-  <aside class="is-light is-radius">
-    <div class="sidearea">
-      <label class="subtitle is-5" for="pricerange"
-        >Highest Price:<span> ${{ pricerange }}</span></label
-      ><input
-        class="slider"
-        id="pricerange"
-        type="range"
-        :value="pricerange"
-        :min="min"
-        :max="max"
-        step="1"
-        @input="updateHighprice($event.target.value)"
-      /><span class="min is-pulled-left">${{ min }}</span
-      ><span class="max is-pulled-right">${{ max }}</span>
+  <v-card color="#f5f5f5" class="pa-5" flat>
+    <!-- Price Range-->
+    <div class="mb-5">
+      <h1 class="text-h6 font-weight-regular text-color-black">
+        Highest Price: ${{ priceValue }}
+      </h1>
     </div>
-    <AppSwitch v-if="!sale"></AppSwitch>
-    <div class="sidearea">
-      <label class="subtitle is-5" for="category">Categories</label>
-      <div class="select">
-        <select id="category" @input="setCategory($event.target.value)">
-          <option
-            v-for="category in categories"
-            :key="category"
-            :selected="category === categorySelected"
-            :value="category"
-          >
-            {{ category }}
-          </option>
-        </select>
-      </div>
+
+    <input
+      class="slider"
+      id="priceValue"
+      type="range"
+      :min="0"
+      :max="400"
+      step="1"
+      v-model="priceValue"
+      @change="onGetFilter()"
+    />
+
+    <div class="d-flex mt-0 mb-5">
+      <span class="text-caption font-weight-regular"> $0</span>
+      <span class="text-caption font-weight-regular ml-auto">$400</span>
     </div>
-    <div class="sidearea">
-      <h4 class="subtitle is-5">Special Sale!</h4>
-      <p>Shop now because half our items are greatly reduced</p>
-    </div>
-    <div class="sidearea">
-      <h4 class="subtitle is-5">Contact Us</h4>
-      <p>Questions? Call us at 1-888-555-SHOP, we're happy to be of service.</p>
-    </div>
-  </aside>
+
+    <v-divider class="my-5"></v-divider>
+
+    <v-switch
+      v-model="sale"
+      @change="onGetFilter()"
+      inset
+      label="Only Sale"
+    ></v-switch>
+
+    <v-divider class="mt-1 mb-5"></v-divider>
+
+    <h1 class="text-h6 font-weight-regular mb-2 text-color-black">
+      Categories
+    </h1>
+
+    <v-select
+      :items="categories"
+      v-model="getCategory"
+      @change="onGetFilter()"
+      color="white"
+      dense
+      flat
+      solo
+    ></v-select>
+
+    <v-divider class="mt-1 mb-5"></v-divider>
+
+    <h1 class="text-h6 font-weight-regular mb-2 text-color-black">
+      Special Sale!
+    </h1>
+
+    <h1 class="text-subtitle-1 font-weight-regular">
+      Shop now because half our items are greatly reduced
+    </h1>
+
+    <v-divider class="my-5"></v-divider>
+
+    <h1 class="text-h6 font-weight-regular mb-2 text-color-black">
+      Contact Us
+    </h1>
+
+    <h1 class="text-subtitle-1 font-weight-regular">
+      Questions? Call us at 1-888-555-SHOP, we're happy to be of service.
+    </h1>
+  </v-card>
 </template>
 
 <script>
-import { createNamespacedHelpers } from 'vuex'
-import Switch from '@/components/Switch'
-
-const { mapActions, mapGetters } = createNamespacedHelpers('product')
+import firebase from 'firebase/app'
+import 'firebase/firestore'
 
 export default {
-  name: 'Sidebar',
-  components: {
-    AppSwitch: Switch,
-  },
-  props: {
-    sale: {
-      type: Boolean,
-      default: false,
-    },
-    pricerange: {
-      type: [Number, String],
-      default: 300,
-    },
-  },
   data() {
     return {
-      min: 0,
-      max: 400,
+      // Product Category
+      categories: ['All', 'Hats', 'Jacket', 'Shirt', 'Shoe', 'Sweater'],
+      products: [],
+
+      // User Input
+      priceValue: 300,
+      getCategory: 'All',
+      sale: false,
     }
   },
-  methods: {
-    ...mapActions(['updateHighprice', 'setCategory']),
+
+  mounted() {
+    firebase
+      .firestore()
+      .collection('products')
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          this.products.push(doc.data())
+        })
+        this.$store.commit('SET_PRODUCTS', this.products)
+      })
   },
-  computed: {
-    ...mapGetters(['categories', 'categorySelected']),
+
+  methods: {
+    onGetFilter() {
+      this.productsTrans = []
+
+      // Get Products From Firestore
+      firebase
+        .firestore()
+        .collection('products')
+        .where('price', '<=', Number(this.priceValue))
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            this.productsTrans.push(doc.data())
+          })
+
+          // If Product is on Sale
+          if (this.sale == true) {
+            let productSale = this.productsTrans.filter(
+              (product) => product.sale == true
+            )
+            // If Category of Product is not 'All'
+            if (this.getCategory != 'All') {
+              let productCategory = productSale.filter(
+                (product) => product.article == this.getCategory
+              )
+              this.products = productCategory
+              this.$store.commit('SET_PRODUCTS', this.products)
+            } else {
+              this.products = productSale
+              this.$store.commit('SET_PRODUCTS', this.products)
+            }
+          } else {
+            // If Category of Product is not 'All'
+            if (this.getCategory != 'All') {
+              let productCategory = this.productsTrans.filter(
+                (product) => product.article == this.getCategory
+              )
+              this.products = productCategory
+              this.$store.commit('SET_PRODUCTS', this.products)
+            } else {
+              this.products = this.productsTrans
+              this.$store.commit('SET_PRODUCTS', this.products)
+            }
+          }
+        })
+    },
   },
 }
 </script>
 
-<style lang="stylus" scoped>
-aside
-  float left
-  width 19.1489%
-  padding 1.5rem
-  position sticky
-
-.sidearea
-  border-bottom 1px solid #ccc
-  padding 20px 0
-
-  &:first-of-type
-    padding-top 0
-    padding-bottom 40px
-
-  &:last-of-type
-    border none
-    padding-bottom 0
-
-  .subtitle
-    padding-bottom 10px
-    margin-bottom 0
-    display block
-
-span
-  font-family 'Barlow', sans-serif
-
-.min,
-.max
-  font-size 12px
-  color #565656
-</style>
+<style lang="scss" scoped></style>

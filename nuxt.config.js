@@ -59,6 +59,11 @@ module.exports = {
     { src: '~plugins/lazysizes', ssr: false },
     { src: '~plugins/localStorage.js', ssr: false },
   ],
+  // nuxt.config.js
+  buildModules: [
+    // Simple usage
+    '@nuxtjs/vuetify',
+  ],
   env: {
     FB_DATABASE_URL,
     FB_PROJECT_ID,

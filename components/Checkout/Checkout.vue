@@ -47,8 +47,6 @@
 import { Card } from 'vue-stripe-elements-plus'
 import { createNamespacedHelpers } from 'vuex'
 
-const { mapActions, mapGetters } = createNamespacedHelpers('checkout')
-const { mapGetters: mapGettersCart } = createNamespacedHelpers('cart')
 const STRIPE_URL = process.env.STRIPE_URL
 
 export default {
@@ -57,8 +55,6 @@ export default {
     Card,
   },
   computed: {
-    ...mapGetters(['isStripeCardCompleted', 'status', 'isLoading']),
-    ...mapGettersCart(['shippingInformation']),
     stripePublishableKey: () => process.env.STRIPE_PUBLISHABLE_KEY,
   },
   props: {
