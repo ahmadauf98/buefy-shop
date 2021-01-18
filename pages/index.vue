@@ -6,8 +6,8 @@
       </div>
       <div>
         <v-row>
-          <v-col cols="3"><AppSidebar /></v-col>
-          <v-col cols="9"><AppProductListItem /></v-col>
+          <v-col cols="3" class="mb-8"><AppSidebar /></v-col>
+          <v-col cols="9" class="mb-8"><AppProductListItem /></v-col>
         </v-row>
       </div>
     </div>

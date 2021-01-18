@@ -1,11 +1,15 @@
 <template>
   <div class="mt-15 pt-5 mb-10">
     <p class="title text-h4 font-weight-medium">
-      <strong class="font-title">Welcome</strong> to our awesome market
+      <strong class="font-title">Welcome</strong> to seller center
     </p>
-    <p class="subtitle">Below you will find your latests products</p>
+    <p class="subtitle">Below you can manage your products</p>
   </div>
 </template>
+
+<script>
+export default {}
+</script>
 
 <style scoped>
 .font-title {
