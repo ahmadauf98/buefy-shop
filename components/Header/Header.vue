@@ -3,8 +3,8 @@
     <!-- Navigation Bar -->
     <v-app-bar
       class="d-none d-sm-inline contain"
-      elevate-on-scroll
-      color="#f5f5f5"
+      color="white"
+      elevation="2"
       app
     >
       <!-- Brand Logo -->
@@ -78,7 +78,7 @@
 
           <v-divider class="mx-3"></v-divider>
           <!-- Seller Dashboard -->
-          <v-list-item to="/manager/auth/settings" class="mt-n5 mb-n1">
+          <v-list-item to="/seller" class="mt-n5 mb-n1">
             <v-list-item-title class="d-flex align-center">
               <v-icon class="mr-1 ml-0" size="24" color="#3c3c3c"
                 >mdi-store-outline</v-icon
