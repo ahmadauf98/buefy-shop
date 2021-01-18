@@ -3,8 +3,8 @@
     <div class="hero-head">
       <AppHeader></AppHeader>
     </div>
-    <div class="hero-body contain">
-      <nuxt />
+    <div class="hero-body contain background">
+      <nuxt class="background" />
     </div>
     <div class="hero-footer">
       <div class="container">
@@ -23,6 +23,10 @@ export default {
 </script>
 
 <style scoped>
+.background {
+  background-color: #f5f5f5;
+}
+
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
 }

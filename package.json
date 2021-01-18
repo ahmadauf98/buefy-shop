@@ -6,7 +6,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development nuxt",
+    "dev": "nuxt",
     "build": "NODE_ENV=production nuxt build",
     "analyze": "ANALYZE=true nuxt build",
     "start": "NODE_ENV=production nuxt start",
@@ -25,6 +25,7 @@
     "@fortawesome/fontawesome-free": "^5.15.1",
     "@fortawesome/fontawesome-svg-core": "^1.2.34",
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
+    "@nuxt/cli": "^2.14.12",
     "@nuxtjs/dotenv": "^1.1.0",
     "@nuxtjs/google-analytics": "^2.0.2",
     "@nuxtjs/pwa": "^3.3.3",
@@ -38,10 +39,12 @@
     "prettier": "^2.2.1",
     "slugify": "^1.4.6",
     "stylus": "^0.54.5",
+    "uniqid": "^5.2.0",
     "vue-form-json": "^3.2.0",
     "vue-stripe-elements-plus": "^0.2.8",
     "vuex-persistedstate": "^2.5.2",
-    "vuexfire": "^2.3.0"
+    "vuexfire": "^2.3.0",
+    "yarn": "^1.22.10"
   },
   "devDependencies": {
     "@babel/polyfill": "^7.12.1",

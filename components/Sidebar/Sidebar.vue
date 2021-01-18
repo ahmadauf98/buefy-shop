@@ -1,5 +1,5 @@
 <template>
-  <v-card color="#f5f5f5" class="pa-5" flat>
+  <v-card color="white" class="pa-5" flat>
     <!-- Price Range-->
     <div class="mb-5">
       <h1 class="text-h6 font-weight-regular text-color-black">
@@ -44,8 +44,7 @@
       @change="onGetFilter()"
       color="white"
       dense
-      flat
-      solo
+      outlined
     ></v-select>
 
     <v-divider class="mt-1 mb-5"></v-divider>

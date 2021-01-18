@@ -8,7 +8,7 @@
         md="5"
         lg="4"
       >
-        <v-card class="pa-5 text-center" elevation="5" min-height="350">
+        <v-card class="pa-5 text-center" flat min-height="350">
           <!-- Product Image -->
           <img :src="product.img" alt="..." />
 
