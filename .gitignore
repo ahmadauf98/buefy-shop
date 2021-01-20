@@ -25,3 +25,6 @@ static/workbox-sw*.js
 
 coverage
 .env
+
+# Key
+functions/serviceAccountKey.json
