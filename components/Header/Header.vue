@@ -17,6 +17,8 @@
 
       <!-- If user login => Cart|User Btn, If user not auth => Sign Up|Login Btn -->
 
+     
+
       <!-- Cart Btn -->
       <v-btn
         v-show="isLogged == true"
@@ -163,6 +165,11 @@ export default {
       // Loading Overlay
       loadingOverlay: false,
       loadingOpacity: 1,
+
+      // Search Data
+      isLoading: false,
+      items: [],
+      search: null,
     }
   },
 
@@ -191,6 +198,26 @@ export default {
           this.loadingOverlay = false
         }, 1000)
     },
+    //search
+    search(val) {
+      if (this.items.length > 0) return
+
+      this.isLoading = true
+
+      firebase
+        .firestore()
+        .collection('products')
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            this.items.push(doc.data())
+          })
+          this.isLoading = false
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
   },
 
   methods: {
@@ -202,6 +229,13 @@ export default {
         this.loadingOverlay = false
         console.log(error.message)
       }
+    },
+    itemChange(e) {
+      this.selected = e
+      this.$nextTick(() => {
+        // this.searchString = '';
+        this.search = null
+      })
     },
   },
 }
