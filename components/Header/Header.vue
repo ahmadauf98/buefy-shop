@@ -27,7 +27,16 @@
         class="text-body-1 text-capitalize font-weight-light text-color-black px-3 py-5 mr-1"
         text
       >
-        <v-icon size="20" class="mr-1" color="#494949">mdi-cart</v-icon>
+        <v-badge
+          v-if="product_data_length != 0"
+          left
+          overlap
+          color="primary"
+          :content="product_data_length"
+        >
+          <v-icon size="20" class="mr-1" color="#494949">mdi-cart</v-icon>
+        </v-badge>
+        <v-icon v-else size="20" class="mr-1" color="#494949">mdi-cart</v-icon>
         Cart
       </v-btn>
 
@@ -161,6 +170,8 @@ export default {
 
       // Data fetch from firebase
       firebase_data: '',
+      product_data: [],
+      product_data_length: 0,
 
       // Loading Overlay
       loadingOverlay: false,
@@ -184,6 +195,19 @@ export default {
           .doc(user.uid)
           .onSnapshot((doc) => {
             this.firebase_data = doc.data()
+          })
+
+        firebase
+          .firestore()
+          .collection('users')
+          .doc(user.uid)
+          .collection('cart')
+          .onSnapshot((docRef) => {
+            this.product_data = []
+            docRef.forEach((doc) => {
+              this.product_data.push(doc.data())
+            })
+            this.product_data_length = this.product_data.length
           })
       } else {
         this.isLogged = false

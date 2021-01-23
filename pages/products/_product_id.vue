@@ -213,6 +213,7 @@
                       tile
                       outlined
                       large
+                      @click="addToCart()"
                     >
                       <v-icon class="mr-1" size="20">mdi-cart-plus</v-icon>
                       Add To Cart
@@ -243,11 +244,15 @@
 
 <script>
 import firebase from 'firebase/app'
+import 'firebase/auth'
 import 'firebase/firestore'
 
 export default {
   data() {
     return {
+      //  User UID
+      userUid: firebase.auth().currentUser.uid,
+
       // Product Data
       product_id: '',
       seller_id: '',
@@ -332,6 +337,21 @@ export default {
       } else {
         return (this.product_quantity += 1)
       }
+    },
+
+    addToCart() {
+      // Get Courier Data From Firebase
+      firebase
+        .firestore()
+        .collection('users')
+        .doc(this.userUid)
+        .collection('cart')
+        .doc(this.product_id)
+        .set({
+          count: this.product_quantity,
+          courier_id: this.selectedCourier,
+          product_id: this.product_id,
+        })
     },
   },
 }
