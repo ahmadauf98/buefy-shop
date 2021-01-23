@@ -49,6 +49,7 @@
 
     <v-divider class="mt-1 mb-5"></v-divider>
 
+
     <h1 class="text-h6 font-weight-regular mb-2 text-color-black">
       Special Sale!
     </h1>
@@ -83,9 +84,11 @@ export default {
       // User Input
       priceValue: 300,
       getCategory: 'All',
+      getTest: '',
       sale: false,
     }
   },
+
 
   mounted() {
     firebase
@@ -146,6 +149,8 @@ export default {
           }
         })
     },
+
+
   },
 }
 </script>
