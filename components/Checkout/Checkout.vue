@@ -45,7 +45,6 @@
 
 <script>
 import { Card } from 'vue-stripe-elements-plus'
-import { createNamespacedHelpers } from 'vuex'
 
 const STRIPE_URL = process.env.STRIPE_URL
 
@@ -64,8 +63,6 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['clearCheckout', 'pay', 'setIsStripeCardCompleted']),
-
     async beforePay() {
       await this.pay({
         url: STRIPE_URL,
