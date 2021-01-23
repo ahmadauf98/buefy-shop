@@ -16,44 +16,8 @@
       <v-spacer></v-spacer>
 
       <!-- If user login => Cart|User Btn, If user not auth => Sign Up|Login Btn -->
-      <h1 class="text-h6 font-weight-regular mb-2 text-color-black">Search</h1>
 
-      <v-autocomplete
-        class ="ml-2"
-        :items="items"
-        :loading="isLoading"
-        :search-input.sync="search"
-        append-icon="mdi-magnify"
-        item-text="name"
-        label="Search"
-        clearable
-        @change="search=null"
-        hide-details
-        hide-selected
-        dense
-        outlined
-      >
-        <template v-slot:no-data>
-          <v-list-item>
-            <v-list-item-title>
-              Search for your
-              <strong>Product</strong>
-            </v-list-item-title>
-          </v-list-item>
-        </template>
-        <template v-slot:item="{ item }">
-          <v-list-item :to="`products/${item.product_id}`">
-            <!-- Product Image -->
-            <v-list-item-avatar>
-              <v-img :src="item.image"></v-img>
-            </v-list-item-avatar>
-            <!-- Product Name -->
-            <v-list-item-content>
-              <v-list-item-title v-text="item.name"></v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </template>
-      </v-autocomplete>
+     
 
       <!-- Cart Btn -->
       <v-btn
@@ -206,8 +170,6 @@ export default {
       isLoading: false,
       items: [],
       search: null,
-      
-     
     }
   },
 
@@ -268,13 +230,13 @@ export default {
         console.log(error.message)
       }
     },
-          itemChange(e) {
-        this.selected = e;
-        this.$nextTick(() => {
-          // this.searchString = '';
-          this.search = null;
-        });
-      },
+    itemChange(e) {
+      this.selected = e
+      this.$nextTick(() => {
+        // this.searchString = '';
+        this.search = null
+      })
+    },
   },
 }
 </script>
