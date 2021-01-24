@@ -249,6 +249,7 @@ export default {
       this.loadingOverlay = true
       try {
         await firebase.auth().signOut()
+        this.$router.push('/')
       } catch (error) {
         this.loadingOverlay = false
         console.log(error.message)
