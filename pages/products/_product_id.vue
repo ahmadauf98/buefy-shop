@@ -101,6 +101,7 @@
                       v-for="(courier, index) in courierList"
                       :key="index"
                       class="ma-0 pa-0"
+                      v-show="courier.status == true"
                     >
                       <label>
                         <input
@@ -225,6 +226,75 @@
           </v-card>
         </v-col>
 
+        <!-- Seller Info -->
+        <v-col cols="12" class="my-1">
+          <v-card class="py-6 px-10" flat>
+            <v-row>
+              <v-col cols="4" class="d-flex align-center">
+                <v-avatar size="70" class="mr-4">
+                  <img :src="seller.profile_photo" alt="..." />
+                </v-avatar>
+
+                <div>
+                  <h1
+                    class="text-subtitle-1 font-weight-medium text-color-black"
+                  >
+                    {{ seller.shop }} Shop
+                  </h1>
+                  <h1
+                    class="text-subtitle-2 font-weight-regular text-color-grey"
+                  >
+                    By {{ seller.name }}
+                  </h1>
+                </div>
+              </v-col>
+
+              <v-divider vertical class="ma-0 mx-5"></v-divider>
+
+              <v-col cols="4">
+                <v-row class="ma-0 pa-0">
+                  <!-- Total Products -->
+                  <v-col cols="6" class="text-center">
+                    <h1 class="text-subtitle-1 font-weight-medium">
+                      Total Products
+                    </h1>
+                    <h1 class="text-subtitle-2 font-weight-regular">
+                      {{ productLength }}
+                    </h1>
+                  </v-col>
+
+                  <!-- Date Joined -->
+                  <v-col cols="6" class="text-center">
+                    <h1 class="text-subtitle-1 font-weight-medium">
+                      Date Joined
+                    </h1>
+                    <h1 class="text-subtitle-2 font-weight-regular">
+                      {{ seller.date_joined }}
+                    </h1>
+                  </v-col>
+                </v-row>
+              </v-col>
+
+              <v-divider vertical class="ma-0 mx-5"></v-divider>
+
+              <v-col cols="3" class="ml-auto my-auto">
+                <div class="d-flex justify-center">
+                  <v-btn
+                    class="text-subtitle-1 text-capitalize"
+                    color="primary"
+                    outlined
+                    tile
+                    large
+                  >
+                    <v-icon class="mr-1" size="20">mdi-store</v-icon>
+                    Become a seller</v-btn
+                  >
+                </div>
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+
         <!-- Product Description -->
         <v-col cols="12" class="mt-1 pt-5 mb-11">
           <v-card class="pa-10" min-height="200" flat>
@@ -250,8 +320,10 @@ import 'firebase/firestore'
 export default {
   data() {
     return {
-      //  User UID
-      userUid: firebase.auth().currentUser.uid,
+      //  User Data
+      userUid: '',
+      seller: '',
+      productLength: '',
 
       // Product Data
       product_id: '',
@@ -284,6 +356,12 @@ export default {
   },
 
   mounted() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.userUid = user.uid
+      }
+    })
+
     // Get Product Data From Firebase
     firebase
       .firestore()
@@ -304,17 +382,56 @@ export default {
           this.sales = doc.data().sales
           this.stock = doc.data().stock
         }
-      })
 
-    // Get Courier Data From Firebase
-    firebase
-      .firestore()
-      .collection('courier')
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          this.courierList.push(doc.data())
-        })
+        // Get User Info From Firebase
+        firebase
+          .firestore()
+          .collection('users')
+          .doc(this.seller_id)
+          .get()
+          .then((doc) => {
+            this.seller = doc.data()
+          })
+
+        // Get Seller Info From Firebase
+        firebase
+          .firestore()
+          .collection('seller')
+          .doc(this.seller_id)
+          .get()
+          .then((doc) => {
+            this.productLength = doc.data().product.length
+          })
+
+        // Get Courier Shipment Settings Info from Firebase
+        firebase
+          .firestore()
+          .collection('seller')
+          .doc(this.seller_id)
+          .collection('shipmentsettings')
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc_ss) => {
+              // Get Courier Data From Firebase
+              firebase
+                .firestore()
+                .collection('courier')
+                .doc(doc_ss.data().courier_id)
+                .get()
+                .then((doc_c) => {
+                  const list = {
+                    courier_id: doc_ss.data().courier_id,
+                    rate: doc_ss.data().rate,
+                    status: doc_ss.data().status,
+                    brand_name: doc_c.data().brand_name,
+                    courier_feedback: doc_c.data().courier_feedback,
+                    courier_img: doc_c.data().courier_img,
+                    overall_rating: doc_c.data().overall_rating,
+                  }
+                  this.courierList.push(list)
+                })
+            })
+          })
       })
   },
 
