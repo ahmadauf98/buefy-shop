@@ -107,6 +107,7 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
+import moment from 'moment'
 
 export default {
   layout: 'auth',
@@ -138,17 +139,22 @@ export default {
           .createUserWithEmailAndPassword(this.email, this.password)
           .then((data) => {
             // User Info
-            firebase.firestore().collection('users').doc(data.user.uid).set({
-              user_id: data.user.uid,
-              name: this.name,
-              date_of_birth: null,
-              email_address: this.email,
-              phone_number: null,
-              shop_name: null,
-              gender: null,
-              profile_photo:
-                'https://firebasestorage.googleapis.com/v0/b/sports-management-system-v2.appspot.com/o/website%2FLogo.jpg?alt=media&token=921893c3-3134-494b-8f8c-332b10666623',
-            })
+            firebase
+              .firestore()
+              .collection('users')
+              .doc(data.user.uid)
+              .set({
+                user_id: data.user.uid,
+                name: this.name,
+                date_of_birth: null,
+                email_address: this.email,
+                phone_number: null,
+                shop_name: null,
+                gender: null,
+                date_joined: moment().format('DD MMM YYYY'),
+                profile_photo:
+                  'https://firebasestorage.googleapis.com/v0/b/sports-management-system-v2.appspot.com/o/website%2FLogo.jpg?alt=media&token=921893c3-3134-494b-8f8c-332b10666623',
+              })
             data.user.updateProfile({
               displayName: this.name,
             })
@@ -166,6 +172,43 @@ export default {
               product: [],
               order: [],
               report: [], // TBC
+            })
+
+            // Shipment Settings Info
+            const courier = [
+              { courier_id: 'abx_express' },
+              { courier_id: 'citylink_express' },
+              { courier_id: 'gd_express' },
+              { courier_id: 'ninja_van' },
+              { courier_id: 'pos_laju' },
+            ]
+
+            courier.forEach((doc) => {
+              if (doc.courier_id == 'pos_laju') {
+                firebase
+                  .firestore()
+                  .collection('seller')
+                  .doc(data.user.uid)
+                  .collection('shipmentsettings')
+                  .doc(doc.courier_id)
+                  .set({
+                    courier_id: doc.courier_id,
+                    status: true,
+                    rate: 0,
+                  })
+              } else {
+                firebase
+                  .firestore()
+                  .collection('seller')
+                  .doc(data.user.uid)
+                  .collection('shipmentsettings')
+                  .doc(doc.courier_id)
+                  .set({
+                    courier_id: doc.courier_id,
+                    status: false,
+                    rate: 0,
+                  })
+              }
             })
           })
           .then(() => {

@@ -15,7 +15,6 @@
 </template>
 
 <script>
-import { createNamespacedHelpers } from 'vuex'
 import Hero from '@/components/Hero'
 import ProductListItem from '@/components/ProductListItem'
 import Sidebar from '@/components/Sidebar'
