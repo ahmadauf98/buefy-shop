@@ -145,6 +145,7 @@ import StepMenu from '@/components/StepMenu'
 import stepMenuContent from '@/components/StepMenu/stepMenuContent.json'
 import 'vue-form-json/dist/vue-form-json.css'
 import Checkout from '@/components/Checkout'
+
 export default {
   data() {
     return {
@@ -153,6 +154,7 @@ export default {
       actualStep: 0,
       temp: [],
       amount: 0,
+
       //form variable
       name: '',
       phone: '',
@@ -161,6 +163,7 @@ export default {
       city: '',
       country: '',
       message: '',
+
       order_id: '',
     }
   },
@@ -184,6 +187,7 @@ export default {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         this.userUid = user.uid
+
         // Get Cart Data From Firebase
         firebase
           .firestore()
@@ -192,10 +196,13 @@ export default {
           .collection('cart')
           .onSnapshot((doc) => {
             this.cart = []
+
             doc.forEach((product) => {
               this.cart.push(product.data())
             })
+
             console.log(this.cart)
+
             this.amount = 0
             // Calculate Total From Firebase
             this.cart.forEach((item) => {
@@ -223,6 +230,7 @@ export default {
     setActualStep: function (num) {
       this.actualStep = num
     },
+
     submit() {
       // for each item in cart
       this.cart.forEach((item) => {
@@ -234,6 +242,7 @@ export default {
             // initialise order_id
             var uniqid = require('uniqid')
             this.order_id = uniqid()
+
             firebase.firestore().collection('shipping').doc(this.order_id).set({
               buyer_id: this.userUid,
               seller_id: i.data().seller_id,
@@ -252,6 +261,7 @@ export default {
             })
           })
       })
+
       this.setActualStep(2)
     },
   },
