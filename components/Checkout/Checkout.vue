@@ -45,10 +45,7 @@
 
 <script>
 import { Card } from 'vue-stripe-elements-plus'
-import { createNamespacedHelpers } from 'vuex'
-
 const STRIPE_URL = process.env.STRIPE_URL
-
 export default {
   name: 'Checkout',
   components: {
@@ -64,8 +61,6 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['clearCheckout', 'pay', 'setIsStripeCardCompleted']),
-
     async beforePay() {
       await this.pay({
         url: STRIPE_URL,
@@ -85,18 +80,14 @@ export default {
   display flex
   flex-direction column
   margin 0 auto
-
 .stripe-card
   margin-bottom 1rem
-
   &.input
     display block
-
 /* -- transition --*/
 .fade-enter-active,
 .fade-leave-active
   transition opacity 0.25s ease-out
-
 .fade-enter,
 .fade-leave-to
   opacity 0
