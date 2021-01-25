@@ -44,16 +44,34 @@
 </template>
 
 <script>
+import firebase from 'firebase/app'
+import 'firebase/auth'
+import 'firebase/firestore'
 import { Card } from 'vue-stripe-elements-plus'
+import { mapState } from 'vuex'
 
 const STRIPE_URL = process.env.STRIPE_URL
 
 export default {
+  data() {
+    return {
+      userUid: '',
+      order_id: '',
+    }
+  },
   name: 'Checkout',
   components: {
     Card,
   },
   computed: {
+    ...mapState([
+      'isStripeCardCompleted',
+      'status',
+      'isLoading',
+      'shippingInformation',
+      'cart',
+      'success',
+    ]),
     stripePublishableKey: () => process.env.STRIPE_PUBLISHABLE_KEY,
   },
   props: {
@@ -62,12 +80,108 @@ export default {
       required: true,
     },
   },
+  mounted() {
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        this.userUid = user.uid
+      } else {
+        this.$router.push('/')
+      }
+    })
+  },
   methods: {
     async beforePay() {
       await this.pay({
         url: STRIPE_URL,
-        userData: this.shippingInformation,
-        total: this.total,
+      })
+    },
+
+    setIsStripeCardCompleted: function (bool) {
+      this.$store.commit('SET_IS_STRIPE_CARD_COMPLETED', bool)
+    },
+
+    pay: function (url) {
+      // Submit data to firebase
+      this.submit()
+
+      this.$store.commit('SET_STATUS', 'success')
+      this.$store.commit('SET_SUCCESS', true)
+      this.$store.commit('SET_ACTUAL_STEP', 3)
+      this.$store.commit('SET_CART_NUM', 0)
+
+      if (this.success == true) {
+        this.cart.forEach((item) => {
+          firebase
+            .firestore()
+            .collection('users')
+            .doc(this.userUid)
+            .collection('cart')
+            .doc(item.product_id)
+            .delete()
+        })
+      }
+    },
+
+    submit() {
+      // for each item in cart
+      this.cart.forEach((item) => {
+        firebase
+          .firestore()
+          .collection('products')
+          .doc(item.product_id)
+          .onSnapshot((i) => {
+            // initialise order_id
+            var uniqid = require('uniqid')
+            this.order_id = uniqid()
+
+            if (i.data().sale == true) {
+              firebase
+                .firestore()
+                .collection('order')
+                .doc(this.order_id)
+                .set({
+                  buyer_id: this.userUid,
+                  seller_id: i.data().seller_id,
+                  product_id: item.product_id,
+                  count: item.count,
+                  order_id: this.order_id,
+                  status: 'to_ship',
+                  courier_id: item.courier_id,
+                  name: this.shippingInformation.name,
+                  phone_number: this.shippingInformation.phone,
+                  address: this.shippingInformation.address,
+                  zip: this.shippingInformation.zip,
+                  city: this.shippingInformation.city,
+                  country: this.shippingInformation.country,
+                  message: this.shippingInformation.message,
+                  total_price: item.count * i.data().sale_price,
+                  tracking_id: null,
+                })
+            } else {
+              firebase
+                .firestore()
+                .collection('order')
+                .doc(this.order_id)
+                .set({
+                  buyer_id: this.userUid,
+                  seller_id: i.data().seller_id,
+                  product_id: item.product_id,
+                  count: item.count,
+                  order_id: this.order_id,
+                  status: 'to_ship',
+                  courier_id: item.courier_id,
+                  name: this.shippingInformation.name,
+                  phone_number: this.shippingInformation.phone,
+                  address: this.shippingInformation.address,
+                  zip: this.shippingInformation.zip,
+                  city: this.shippingInformation.city,
+                  country: this.shippingInformation.country,
+                  message: this.shippingInformation.message,
+                  total_price: item.count * i.data().price,
+                  tracking_id: null,
+                })
+            }
+          })
       })
     },
   },

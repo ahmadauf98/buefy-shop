@@ -3,7 +3,7 @@
     <div class="section">
       <div class="capsule cart content">
         <StepMenu :actualStep="actualStep" :menu="stepMenuContent"></StepMenu>
-        <div v-if="cart.length &gt; 0">
+        <div v-if="cart_num &gt; 0">
           <div v-if="actualStep === 0">
             <transition-group class="content" name="items" tag="div">
               <CartProductListItem
@@ -97,7 +97,7 @@
                     <v-btn
                       color="primary"
                       text
-                      @click="submit()"
+                      @click="next()"
                       :disabled="
                         name == '' ||
                         phone == '' ||
@@ -107,7 +107,7 @@
                         country == ''
                       "
                     >
-                      Place Order
+                      Next
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -118,19 +118,22 @@
             <Checkout :total="amount"></Checkout>
           </div>
         </div>
-        <div class="empty has-text-centered" v-else-if="cart.length == 0">
+        <div
+          class="empty has-text-centered"
+          v-else-if="cart_num == 0 && !success"
+        >
           <h3>Your cart is empty.</h3>
           <nuxt-link exact="exact" to="/"
             ><button class="button">Fill er up!</button></nuxt-link
           >
         </div>
-        <!-- <div class="has-text-centered" v-else>
+        <div class="has-text-centered" v-else>
           <h2>Success!</h2>
           <p>Your order has been processed, it will be delivered shortly.</p>
           <nuxt-link exact="exact" to="/"
             ><button class="button">Fill again your cart</button></nuxt-link
           >
-        </div> -->
+        </div>
       </div>
     </div>
   </div>
@@ -145,13 +148,13 @@ import StepMenu from '@/components/StepMenu'
 import stepMenuContent from '@/components/StepMenu/stepMenuContent.json'
 import 'vue-form-json/dist/vue-form-json.css'
 import Checkout from '@/components/Checkout'
+import { mapState } from 'vuex'
 
 export default {
   data() {
     return {
       cart: [],
       userUid: '',
-      actualStep: 0,
       temp: [],
       amount: 0,
 
@@ -163,8 +166,6 @@ export default {
       city: '',
       country: '',
       message: '',
-
-      order_id: '',
     }
   },
   head: {
@@ -176,6 +177,7 @@ export default {
     Checkout,
   },
   computed: {
+    ...mapState(['success', 'actualStep', 'cart_num']),
     stepMenuContent: () => stepMenuContent,
   },
   filters: {
@@ -201,7 +203,9 @@ export default {
               this.cart.push(product.data())
             })
 
-            console.log(this.cart)
+            this.$store.commit('SET_CART_NUM', this.cart.length)
+
+            console.log('cart length:', this.cart.length)
 
             this.amount = 0
             // Calculate Total From Firebase
@@ -228,42 +232,28 @@ export default {
   },
   methods: {
     setActualStep: function (num) {
-      this.actualStep = num
+      this.$store.commit('SET_ACTUAL_STEP', num)
     },
 
-    submit() {
-      // for each item in cart
-      this.cart.forEach((item) => {
-        firebase
-          .firestore()
-          .collection('products')
-          .doc(item.product_id)
-          .onSnapshot((i) => {
-            // initialise order_id
-            var uniqid = require('uniqid')
-            this.order_id = uniqid()
-
-            firebase.firestore().collection('shipping').doc(this.order_id).set({
-              buyer_id: this.userUid,
-              seller_id: i.data().seller_id,
-              product_id: item.product_id,
-              count: item.count,
-              order_id: this.order_id,
-              status: 'to_pay',
-              courier_id: item.courier_id,
-              name: this.name,
-              phone_number: this.phone,
-              address: this.address,
-              zip: this.zip,
-              city: this.city,
-              country: this.country,
-              message: this.message,
-            })
-          })
+    next: function () {
+      this.$store.commit('SET_SHIPPING_INFO', {
+        name: this.name,
+        phone: this.phone,
+        address: this.address,
+        zip: this.zip,
+        city: this.city,
+        country: this.country,
+        message: this.message,
       })
+
+      this.$store.commit('SET_CART', this.cart)
 
       this.setActualStep(2)
     },
+  },
+  beforeDestroy() {
+    this.$store.commit('SET_SUCCESS', false)
+    this.$store.commit('SET_ACTUAL_STEP', 0)
   },
 }
 </script>
