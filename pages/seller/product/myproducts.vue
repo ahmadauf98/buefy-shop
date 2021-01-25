@@ -48,7 +48,7 @@
                     <v-row>
                       <v-col cols="6">
                         <h1 class="text-subtitle-2 text-left text-color-blue">
-                          RM{{ product.price.toFixed(2) }}
+                          ${{ product.price }}
                         </h1>
                       </v-col>
                       <v-col cols="6">

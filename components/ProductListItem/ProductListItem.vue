@@ -8,69 +8,34 @@
         md="5"
         lg="4"
       >
-        <NuxtLink :to="`/products/${product.product_id}`">
-          <v-hover v-slot="{ hover }">
-            <v-card
-              class="pa-5 text-center"
-              :elevation="hover ? 5 : 0"
-              :class="{ 'on-hover': hover }"
-              flat
-              min-height="350"
-            >
-              <!-- Product Image -->
-              <v-img
-                class="mx-auto mb-1"
-                aspect-ratio="1.7"
-                height="200"
-                width="200"
-                :src="product.image"
-                alt="..."
-              ></v-img>
+        <v-card class="pa-5 text-center" flat min-height="350">
+          <!-- Product Image -->
+          <img :src="product.img" alt="..." />
 
-              <v-row>
-                <v-col cols="12">
-                  <h1
-                    class="text-h6 text-left font-weight-medium text-color-black text-truncate"
+          <v-row class="text-left d-flex">
+            <!-- Product Name & Price -->
+            <v-col cols="9">
+              <NuxtLink :to="`/products/${product.product_id}`" class="text">
+                <h1 class="text-h6 font-weight-medium mb-2 text-color-black">
+                  {{ product.name }} <br />
+
+                  <span
+                    class="text-subtitle-1 font-weight-regular text-color-black"
                   >
-                    {{ product.name }}
-                  </h1>
-                </v-col>
+                    ${{ product.price }}</span
+                  >
+                </h1>
+              </NuxtLink>
+            </v-col>
 
-                <v-col
-                  v-show="product.sale == true"
-                  cols="12"
-                  class="text-left py-0"
-                >
-                  <v-chip color="green" label text-color="white" small>
-                    Sale
-                  </v-chip>
-                </v-col>
-
-                <v-col cols="12">
-                  <v-row class="ma-0 pa-0">
-                    <!-- Product Price -->
-                    <v-col cols="6" class="ma-0 pa-0">
-                      <h1
-                        class="text-subtitle-1 text-left font-weight-bold text-color-blue"
-                      >
-                        RM{{ product.price.toFixed(2) }}
-                      </h1>
-                    </v-col>
-
-                    <!-- Product Sales -->
-                    <v-col cols="6" class="ma-0 pa-0">
-                      <h1
-                        class="text-subtitle-2 text-left text-color-grey text-right"
-                      >
-                        {{ product.sales }} Sold
-                      </h1>
-                    </v-col>
-                  </v-row>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-hover>
-        </NuxtLink>
+            <!-- Add to Card Button -->
+            <v-col cols="3" class="px-0 mx-0">
+              <v-btn color="#363636" fab dark depressed>
+                <i class="fa fa-cart-plus fa-2x" aria-hidden="true"></i>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
       </v-col>
     </v-row>
   </div>
@@ -97,10 +62,18 @@ export default {
 }
 
 .text-color-blue {
-  color: #1976d2;
+  color: #3298dd;
 }
 
-.text-color-grey {
-  color: #808080;
+.text {
+  text-decoration: none;
+}
+
+.text:hover h1 {
+  color: #3298dd;
+}
+
+.text:hover span {
+  color: #3298dd;
 }
 </style>
