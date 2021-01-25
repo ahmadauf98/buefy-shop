@@ -2,6 +2,10 @@
   <v-app>
     <v-main class="d-none d-sm-flex align-center">
       <v-container class="p-0" fluid>
+
+        <!-- notification -->
+        <notifications/>
+
         <v-card width="450px" class="py-8 px-8 mx-auto" flat>
           <!-- Title -->
           <v-row>
@@ -15,10 +19,9 @@
               <!-- Email Input -->
               <v-text-field
                 v-model="email"
-                type="email"
+                type="text"
                 label="Email"
                 prepend-icon="mdi-email"
-                required
                 dense
                 outlined
               >
@@ -89,9 +92,14 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
+import notifications from '~/components/notifications'
 
 export default {
   layout: 'auth',
+
+  components:{
+    notifications,
+  },
 
   data() {
     return {
@@ -108,11 +116,58 @@ export default {
   },
 
   methods: {
+
+    // To validate email
+    validEmail:function(email) {
+      var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+    },
+
+    // To validate the password
+    validPass:function(password) {
+      // console.log('test function');
+      var re = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/;
+      return re.test(password);
+    },
+
     // Sign In With Email Provider
     async emailLogin() {
       this.isLoading = true
+
       try {
-        await firebase
+
+        //validate whether email is empty or not
+        if (!this.email) {
+        this.isLoading = false
+              this.$store.commit('SET_NOTIFICATION', {
+                alert: 'Please insert an email.',
+                alertIcon: 'mdi-alert-circle',
+                alertIconStyle: 'mr-2 align-self-top',
+                colorIcon: 'red darken-1',
+                snackbar: true,})
+        
+        //validate whether email is in valid template
+        }else if (!this.validEmail(this.email)) {
+        this.isLoading = false
+        this.$store.commit('SET_NOTIFICATION', {
+          alert: 'Please insert a valid email.',
+          alertIcon: 'mdi-alert-circle',
+          alertIconStyle: 'mr-2 align-self-top',
+          colorIcon: 'red darken-1',
+          snackbar: true,})
+
+        //validate whether password is empty or not
+        }else if (!this.password) {
+        this.isLoading = false
+              this.$store.commit('SET_NOTIFICATION', {
+                alert: 'Please insert a password.',
+                alertIcon: 'mdi-alert-circle',
+                alertIconStyle: 'mr-2 align-self-top',
+                colorIcon: 'red darken-1',
+                snackbar: true,})
+        
+        }else {
+          await firebase
           .auth()
           .signInWithEmailAndPassword(this.email, this.password)
           .then((data) => {
@@ -128,9 +183,17 @@ export default {
                 this.isLoading = false
               })
           })
+        }
+        
       } catch (error) {
         this.isLoading = false
         console.log(error.message)
+        this.$store.commit('SET_NOTIFICATION', {
+            alert: error.message,
+            alertIcon: 'mdi-alert-circle',
+            alertIconStyle: 'mr-2 align-self-top',
+            colorIcon: 'red darken-1',
+            snackbar: true,})
       }
     },
   },
