@@ -17,6 +17,8 @@
 
       <!-- If user login => Cart|User Btn, If user not auth => Sign Up|Login Btn -->
 
+     
+
       <!-- Cart Btn -->
       <v-btn
         v-show="isLogged == true"
@@ -25,7 +27,16 @@
         class="text-body-1 text-capitalize font-weight-light text-color-black px-3 py-5 mr-1"
         text
       >
-        <v-icon size="20" class="mr-1" color="#494949">mdi-cart</v-icon>
+        <v-badge
+          v-if="product_data_length != 0"
+          left
+          overlap
+          color="primary"
+          :content="product_data_length"
+        >
+          <v-icon size="20" class="mr-1" color="#494949">mdi-cart</v-icon>
+        </v-badge>
+        <v-icon v-else size="20" class="mr-1" color="#494949">mdi-cart</v-icon>
         Cart
       </v-btn>
 
@@ -159,10 +170,17 @@ export default {
 
       // Data fetch from firebase
       firebase_data: '',
+      product_data: [],
+      product_data_length: 0,
 
       // Loading Overlay
       loadingOverlay: false,
       loadingOpacity: 1,
+
+      // Search Data
+      isLoading: false,
+      items: [],
+      search: null,
     }
   },
 
@@ -178,6 +196,19 @@ export default {
           .onSnapshot((doc) => {
             this.firebase_data = doc.data()
           })
+
+        firebase
+          .firestore()
+          .collection('users')
+          .doc(user.uid)
+          .collection('cart')
+          .onSnapshot((docRef) => {
+            this.product_data = []
+            docRef.forEach((doc) => {
+              this.product_data.push(doc.data())
+            })
+            this.product_data_length = this.product_data.length
+          })
       } else {
         this.isLogged = false
       }
@@ -191,6 +222,26 @@ export default {
           this.loadingOverlay = false
         }, 1000)
     },
+    //search
+    search(val) {
+      if (this.items.length > 0) return
+
+      this.isLoading = true
+
+      firebase
+        .firestore()
+        .collection('products')
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            this.items.push(doc.data())
+          })
+          this.isLoading = false
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
   },
 
   methods: {
@@ -198,10 +249,18 @@ export default {
       this.loadingOverlay = true
       try {
         await firebase.auth().signOut()
+        this.$router.push('/')
       } catch (error) {
         this.loadingOverlay = false
         console.log(error.message)
       }
+    },
+    itemChange(e) {
+      this.selected = e
+      this.$nextTick(() => {
+        // this.searchString = '';
+        this.search = null
+      })
     },
   },
 }
