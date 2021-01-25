@@ -97,7 +97,7 @@
                     <v-btn
                       color="primary"
                       text
-                      @click="setActualStep(2)"
+                      @click="next()"
                       :disabled="
                         name == '' ||
                         phone == '' ||
@@ -155,7 +155,6 @@ export default {
     return {
       cart: [],
       userUid: '',
-      actualStep: 0,
       temp: [],
       amount: 0,
 
@@ -167,8 +166,6 @@ export default {
       city: '',
       country: '',
       message: '',
-
-      order_id: '',
     }
   },
   head: {
@@ -208,7 +205,7 @@ export default {
 
             this.$store.commit('SET_CART_NUM', this.cart.length)
 
-            console.log(this.cart)
+            console.log('cart length:', this.cart.length)
 
             this.amount = 0
             // Calculate Total From Firebase
@@ -238,82 +235,23 @@ export default {
       this.$store.commit('SET_ACTUAL_STEP', num)
     },
 
-    submit() {
-      // for each item in cart
-      this.cart.forEach((item) => {
-        firebase
-          .firestore()
-          .collection('products')
-          .doc(item.product_id)
-          .onSnapshot((i) => {
-            // initialise order_id
-            var uniqid = require('uniqid')
-            this.order_id = uniqid()
-
-            if (i.data().sale == true) {
-              firebase
-                .firestore()
-                .collection('shipping')
-                .doc(this.order_id)
-                .set({
-                  buyer_id: this.userUid,
-                  seller_id: i.data().seller_id,
-                  product_id: item.product_id,
-                  count: item.count,
-                  order_id: this.order_id,
-                  status: 'to_ship',
-                  courier_id: item.courier_id,
-                  name: this.name,
-                  phone_number: this.phone,
-                  address: this.address,
-                  zip: this.zip,
-                  city: this.city,
-                  country: this.country,
-                  message: this.message,
-                  total_price: item.count * i.data().sale_price,
-                })
-            } else {
-              firebase
-                .firestore()
-                .collection('shipping')
-                .doc(this.order_id)
-                .set({
-                  buyer_id: this.userUid,
-                  seller_id: i.data().seller_id,
-                  product_id: item.product_id,
-                  count: item.count,
-                  order_id: this.order_id,
-                  status: 'to_ship',
-                  courier_id: item.courier_id,
-                  name: this.name,
-                  phone_number: this.phone,
-                  address: this.address,
-                  zip: this.zip,
-                  city: this.city,
-                  country: this.country,
-                  message: this.message,
-                  total_price: item.count * i.data().price,
-                })
-            }
-          })
+    next: function () {
+      this.$store.commit('SET_SHIPPING_INFO', {
+        name: this.name,
+        phone: this.phone,
+        address: this.address,
+        zip: this.zip,
+        city: this.city,
+        country: this.country,
+        message: this.message,
       })
+
+      this.$store.commit('SET_CART', this.cart)
 
       this.setActualStep(2)
     },
   },
   beforeDestroy() {
-    if (this.success == true) {
-      this.submit()
-      this.cart.forEach((item) => {
-        firebase
-          .firestore()
-          .collection('users')
-          .doc(this.userUid)
-          .collection('cart')
-          .doc(item.product_id)
-          .delete()
-      })
-    }
     this.$store.commit('SET_SUCCESS', false)
     this.$store.commit('SET_ACTUAL_STEP', 0)
   },

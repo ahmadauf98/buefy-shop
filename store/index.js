@@ -21,6 +21,10 @@ export const state = () => ({
   success: false,
   actualStep: 0,
   cart_num: 0,
+
+  // Shipping Information
+  shippingInformation: [],
+  cart: [],
 })
 
 export const mutations = {
@@ -62,5 +66,13 @@ export const mutations = {
 
   SET_CART_NUM: (state, num) => {
     state.cart_num = num
+  },
+
+  SET_SHIPPING_INFO: (state, info) => {
+    state.shippingInformation = info
+  },
+  
+  SET_CART: (state, info) => {
+    state.cart = info
   },
 }
