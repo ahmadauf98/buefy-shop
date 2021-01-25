@@ -266,7 +266,7 @@ export default {
     return {
       // Selection Item
       productCategory: ['All', 'Hats', 'Jacket', 'Shirt', 'Shoe', 'Sweater'],
-      genderCategory: ['Male', 'Female', 'Others'],
+      genderCategory: ['Men', 'Women', 'Others'],
       step: 1,
 
       // Add Product Input Data

@@ -44,6 +44,9 @@
 </template>
 
 <script>
+import firebase from 'firebase/app'
+import 'firebase/auth'
+import 'firebase/firestore'
 import { Card } from 'vue-stripe-elements-plus'
 const STRIPE_URL = process.env.STRIPE_URL
 export default {
@@ -52,7 +55,11 @@ export default {
     Card,
   },
   computed: {
+    // ...mapGetters(['isStripeCardCompleted', 'status', 'isLoading']),
+    // ...mapGettersCart(['shippingInformation']),
     stripePublishableKey: () => process.env.STRIPE_PUBLISHABLE_KEY,
+
+    ...mapState(['isStripeCardCompleted', 'status', 'isLoading']),
   },
   props: {
     total: {
@@ -64,9 +71,55 @@ export default {
     async beforePay() {
       await this.pay({
         url: STRIPE_URL,
-        userData: this.shippingInformation,
-        total: this.total,
+        // userData: this.shippingInformation,
+        // total: this.total,
       })
+    },
+
+    setIsStripeCardCompleted: function (bool) {
+      this.$store.commit('SET_IS_STRIPE_CARD_COMPLETED', bool)
+    },
+
+    // pay: function ({ commit, dispatch }, { userData, total, url }) {
+    pay: function (url) {
+      // this.$store.commit('SET_IS_LOADING', true)
+
+      // const { token } = await createToken()
+
+      // commit('SET_IS_SUBMITTED', true)
+
+      // try {
+      //   const { data: stripeResponse } = await axios.post(
+      //     url,
+      //     {
+      //       userData,
+      //       stripeToken: token.id,
+      //       stripeAmt: total * 100, // must be in cent
+      //     },
+      //     {
+      //       headers: { 'Content-Type': 'application/json' },
+      //     }
+      //   )
+
+      this.$store.commit('SET_STATUS', 'success')
+      this.$store.commit('SET_SUCCESS', true)
+      this.$store.commit('SET_ACTUAL_STEP', 3)
+      this.$store.commit('SET_CART_NUM', 0)
+
+      //   dispatch('cart/clearCount', null, { root: true })
+      //   dispatch('cart/clearContents', null, { root: true })
+      //   dispatch('cart/setSuccess', true, { root: true })
+      //   dispatch('cart/setActualStep', 3, { root: true })
+
+      //   const { message: stripeResponseMessage } = stripeResponse
+      //   commit('SET_RESPONSE', stripeResponseMessage)
+      // } catch (err) {
+      //   commit('SET_STATUS', 'failure')
+      //   commit('SET_RESPONSE', `Error: ${JSON.stringify(err, null, 2)}`)
+      // }
+      // this.$store.commit('SET_IS_LOADING', false)
+
+      // this.$router.push('/')
     },
   },
 }
