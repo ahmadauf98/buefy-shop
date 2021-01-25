@@ -13,6 +13,14 @@ export const state = () => ({
 
   // List of Products
   products: '',
+
+  // Checkout
+  isStripeCardCompleted: false,
+  status: undefined,
+  isLoading: false,
+  success: false,
+  actualStep: 0,
+  cart_num: 0,
 })
 
 export const mutations = {
@@ -29,5 +37,30 @@ export const mutations = {
 
   SET_PRODUCTS(state, products) {
     state.products = products
+  },
+
+  // Checkout
+  SET_IS_STRIPE_CARD_COMPLETED: (state, bool) => {
+    state.isStripeCardCompleted = bool
+  },
+
+  SET_IS_LOADING: (state, bool) => {
+    state.isLoading = bool
+  },
+
+  SET_STATUS: (state, payload) => {
+    state.status = payload
+  },
+
+  SET_SUCCESS: (state, bool) => {
+    state.success = bool
+  },
+
+  SET_ACTUAL_STEP: (state, num) => {
+    state.actualStep = num
+  },
+
+  SET_CART_NUM: (state, num) => {
+    state.cart_num = num
   },
 }
