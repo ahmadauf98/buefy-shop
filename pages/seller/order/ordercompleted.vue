@@ -148,10 +148,10 @@
                       <v-row class="my-auto">
                         <v-col cols="12" class="px-0">
                           <h1
-                            v-if="order.order_status == 'cancelled'"
+                            v-if="order.order_status == 'completed'"
                             class="text-subtitle-2"
                           >
-                            Cancelled
+                            Completed
                           </h1>
                         </v-col>
                       </v-row>
@@ -177,11 +177,23 @@
                       <v-row class="my-auto">
                         <v-col cols="12" class="px-0">
                           <v-btn
-                            class="text-subtitle-2 px-0 text-capitalize text-color-blue font-weight-regular"
+                            @click="
+                              onDetails(
+                                order.order_id,
+                                order.order_name,
+                                order.order_address,
+                                order.order_phone_number,
+                                order.courier_name,
+                                order.order_tracking_number
+                              )
+                            "
+                            class="text-subtitle-2 px-0 text-capitalize text-color-green font-weight-regular"
                             text
-                            disabled
                           >
-                            Not available
+                            <v-icon class="mr-1" size="18"
+                              >mdi-truck-check</v-icon
+                            >
+                            Check Details
                           </v-btn>
                         </v-col>
                       </v-row>
@@ -194,6 +206,73 @@
         </v-row>
       </div>
     </div>
+
+    <!-- Ship Details Overlay -->
+    <v-overlay :opacity="opacity" :value="shippingDetails">
+      <v-card
+        class="mx-auto pa-10 black--text d-block align-center"
+        min-height="300"
+        width="700"
+        color="white"
+        light
+        outlined
+      >
+        <!-- Order ID -->
+        <div class="mb-4">
+          <h1 class="text-subtitle-1 font-weight-medium mb-1">
+            <v-icon class="mr-1" color="primary">mdi-barcode-scan</v-icon>
+            Order ID
+          </h1>
+          <h1 class="text-subtitle-2 font-weight-regular ml-9 text-color-grey">
+            {{ selectedOrder.order_id }}
+          </h1>
+        </div>
+
+        <!-- Delivery Address -->
+        <div class="mb-4">
+          <h1 class="text-subtitle-1 font-weight-medium mb-1">
+            <v-icon class="mr-1" color="primary"
+              >mdi-office-building-marker-outline</v-icon
+            >
+            Delivery Address
+          </h1>
+          <h1 class="text-subtitle-2 font-weight-regular ml-9 text-color-grey">
+            {{ selectedOrder.order_name }},
+            {{ selectedOrder.order_phone_number }}
+          </h1>
+          <h1 class="text-subtitle-2 font-weight-regular ml-9 text-color-grey">
+            {{ selectedOrder.order_address }}
+          </h1>
+        </div>
+
+        <!-- Courier Tracking Number -->
+        <div>
+          <h1 class="text-subtitle-1 font-weight-medium mb-2">
+            <v-icon class="mr-1" color="primary">mdi-truck-fast</v-icon>
+            Logistic Information - {{ selectedOrder.order_courier_name }}
+          </h1>
+          <v-chip class="ml-9" color="green" dark label>
+            <v-icon left size="18"> mdi-pound </v-icon>
+            {{ selectedOrder.order_tracking_number }}
+          </v-chip>
+        </div>
+
+        <!-- Action Button -->
+        <div class="d-flex justify-end">
+          <v-btn
+            @click="shippingDetails = false"
+            class="px-10 mr-3 text-capitalize"
+            color="grey lighten-1"
+            height="40"
+            width="150"
+            depressed
+            dark
+          >
+            Close</v-btn
+          >
+        </div>
+      </v-card>
+    </v-overlay>
   </v-app>
 </template>
 
@@ -231,7 +310,7 @@ export default {
           .firestore()
           .collection('order')
           .where('seller_id', '==', user.uid)
-          .where('status', '==', 'cancelled')
+          .where('status', '==', 'completed')
           .get()
           .then((querySnapshot) => {
             querySnapshot.forEach((orderRef) => {
@@ -308,6 +387,27 @@ export default {
       }
     })
   },
+
+  methods: {
+    onDetails(
+      order_id,
+      order_name,
+      order_address,
+      order_phone_number,
+      order_courier_name,
+      order_tracking_number
+    ) {
+      this.shippingDetails = true
+      this.selectedOrder = {
+        order_id: order_id,
+        order_name: order_name,
+        order_address: order_address,
+        order_phone_number: order_phone_number,
+        order_courier_name: order_courier_name,
+        order_tracking_number: order_tracking_number,
+      }
+    },
+  },
 }
 </script>
 
@@ -318,5 +418,9 @@ export default {
 
 .text-color-blue {
   color: #1976d2;
+}
+
+.text-color-green {
+  color: #41b883;
 }
 </style>

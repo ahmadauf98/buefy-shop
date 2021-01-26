@@ -239,7 +239,7 @@
                   <h1
                     class="text-subtitle-1 font-weight-medium text-color-black"
                   >
-                    {{ seller.shop }} Shop
+                    {{ seller.shop_name }} Shop
                   </h1>
                   <h1
                     class="text-subtitle-2 font-weight-regular text-color-grey"
@@ -285,6 +285,7 @@
                     outlined
                     tile
                     large
+                    to="/seller"
                   >
                     <v-icon class="mr-1" size="20">mdi-store</v-icon>
                     Become a seller</v-btn
