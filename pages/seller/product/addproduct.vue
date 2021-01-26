@@ -2,7 +2,7 @@
   <v-app>
     <div>
       <div class="section"><sellerAppHero /></div>
-      
+
       <div>
         <v-row>
           <v-col cols="3" class="mb-8">
@@ -400,6 +400,17 @@ export default {
             image: this.image,
             sales: Number(this.sales),
             stock: Number(this.stock),
+          })
+          .then(() => {
+            firebase
+              .firestore()
+              .collection('products')
+              .doc(this.product_id)
+              .update({
+                product: firebase.firestore.FieldValue.arrayUnion(
+                  this.product_id
+                ),
+              })
           })
           .then(() => {
             this.$router.push('myproducts')
