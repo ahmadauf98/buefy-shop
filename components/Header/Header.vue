@@ -97,6 +97,18 @@
               Seller Center</v-list-item-title
             >
           </v-list-item>
+          <!-- //////////////////////// -->
+          <br>
+          <!-- Buyer C -->
+          <v-list-item to="/buyer/buyercenter" class="mt-n5 mb-n1">
+            <v-list-item-title class="d-flex align-center">
+              <v-icon class="mr-1 ml-0" size="24" color="#3c3c3c"
+                >mdi-store-outline</v-icon
+              >
+              Buyer Center</v-list-item-title
+            >
+          </v-list-item>
+          <!-- /////////////////////// -->
 
           <!-- Settings Button -->
           <v-list-item to="/manager/auth/settings" class="mb-n5">

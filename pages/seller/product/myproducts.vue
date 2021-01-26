@@ -123,7 +123,7 @@
                 </v-col>
 
                 <!-- Add Product -->
-                <v-col cols="3" class="card-hover">
+                <!-- <v-col cols="3" class="card-hover">
                   <v-card
                     class="pa-3 d-flex align-center"
                     flat
@@ -145,7 +145,7 @@
                       </v-col>
                     </v-row>
                   </v-card>
-                </v-col>
+                </v-col> -->
               </v-row>
             </v-card>
           </v-col>
