@@ -148,10 +148,10 @@
                       <v-row class="my-auto">
                         <v-col cols="12" class="px-0">
                           <h1
-                            v-if="order.order_status == 'cancelled'"
+                            v-if="order.order_status == 'shipping'"
                             class="text-subtitle-2"
                           >
-                            Cancelled
+                            Shipping
                           </h1>
                         </v-col>
                       </v-row>
@@ -177,11 +177,37 @@
                       <v-row class="my-auto">
                         <v-col cols="12" class="px-0">
                           <v-btn
+                            @click="
+                              onDetails(
+                                order.order_id,
+                                order.order_name,
+                                order.order_address,
+                                order.order_phone_number,
+                                order.courier_name,
+                                order.order_tracking_number
+                              )
+                            "
                             class="text-subtitle-2 px-0 text-capitalize text-color-blue font-weight-regular"
                             text
-                            disabled
                           >
-                            Not available
+                            <i class="mr-1" style="fill: #1976d2">
+                              <svg
+                                width="18"
+                                height="18"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 16 16"
+                              >
+                                <g>
+                                  <path
+                                    d="M6.868 13.717H2.469a.49.49 0 0 1-.489-.489V2.476c0-.274.215-.489.49-.489h9.774a.49.49 0 0 1 .489.49v4.398a.489.489 0 0 0 .977 0V1.987a.98.98 0 0 0-.977-.977H1.98a.98.98 0 0 0-.977.977v11.73c0 .538.44.978.977.978h4.888a.489.489 0 1 0 0-.978zm7.593.089l-1.27-1.27c-.099-.098-.196-.098-.294-.098-.293 0-.489.195-.489.488 0 .098 0 .196.098.294l1.27 1.27c.098.098.196.196.392.196.293 0 .488-.196.488-.489 0-.098-.097-.293-.195-.391z"
+                                  ></path>
+                                  <path
+                                    d="M10.642 7.83a2.932 2.932 0 1 0 0 5.866 2.932 2.932 0 0 0 0-5.865zm0 4.888a1.955 1.955 0 1 1-.089-3.909 1.955 1.955 0 0 1 .089 3.91zm.495-7.808H3.302a.482.482 0 0 1-.481-.48v-.016c0-.265.216-.481.48-.481h7.836c.265 0 .481.216.481.48v.016c0 .264-.217.481-.48.481zm-.031 1.955H3.27a.482.482 0 0 1-.48-.48v-.017c0-.264.216-.48.48-.48h7.836c.265 0 .48.216.48.48v.016a.483.483 0 0 1-.481.481zm-4.862 1.95H3.297a.482.482 0 0 1-.481-.48v-.016c0-.265.216-.481.48-.481h2.948c.265 0 .48.216.48.48v.016c0 .266-.215.48-.48.481z"
+                                  ></path>
+                                </g>
+                              </svg>
+                            </i>
+                            Check Details
                           </v-btn>
                         </v-col>
                       </v-row>
@@ -194,6 +220,73 @@
         </v-row>
       </div>
     </div>
+
+    <!-- Ship Details Overlay -->
+    <v-overlay :opacity="opacity" :value="shippingDetails">
+      <v-card
+        class="mx-auto pa-10 black--text d-block align-center"
+        min-height="300"
+        width="700"
+        color="white"
+        light
+        outlined
+      >
+        <!-- Order ID -->
+        <div class="mb-4">
+          <h1 class="text-subtitle-1 font-weight-medium mb-1">
+            <v-icon class="mr-1" color="primary">mdi-barcode-scan</v-icon>
+            Order ID
+          </h1>
+          <h1 class="text-subtitle-2 font-weight-regular ml-9 text-color-grey">
+            {{ selectedOrder.order_id }}
+          </h1>
+        </div>
+
+        <!-- Delivery Address -->
+        <div class="mb-4">
+          <h1 class="text-subtitle-1 font-weight-medium mb-1">
+            <v-icon class="mr-1" color="primary"
+              >mdi-office-building-marker-outline</v-icon
+            >
+            Delivery Address
+          </h1>
+          <h1 class="text-subtitle-2 font-weight-regular ml-9 text-color-grey">
+            {{ selectedOrder.order_name }},
+            {{ selectedOrder.order_phone_number }}
+          </h1>
+          <h1 class="text-subtitle-2 font-weight-regular ml-9 text-color-grey">
+            {{ selectedOrder.order_address }}
+          </h1>
+        </div>
+
+        <!-- Courier Tracking Number -->
+        <div>
+          <h1 class="text-subtitle-1 font-weight-medium mb-2">
+            <v-icon class="mr-1" color="primary">mdi-truck-fast</v-icon>
+            Logistic Information - {{ selectedOrder.order_courier_name }}
+          </h1>
+          <v-chip class="ml-9" color="green" dark label>
+            <v-icon left size="18"> mdi-pound </v-icon>
+            {{ selectedOrder.order_tracking_number }}
+          </v-chip>
+        </div>
+
+        <!-- Action Button -->
+        <div class="d-flex justify-end">
+          <v-btn
+            @click="shippingDetails = false"
+            class="px-10 mr-3 text-capitalize"
+            color="grey lighten-1"
+            height="40"
+            width="150"
+            depressed
+            dark
+          >
+            Close</v-btn
+          >
+        </div>
+      </v-card>
+    </v-overlay>
   </v-app>
 </template>
 
@@ -231,7 +324,7 @@ export default {
           .firestore()
           .collection('order')
           .where('seller_id', '==', user.uid)
-          .where('status', '==', 'cancelled')
+          .where('status', '==', 'shipping')
           .get()
           .then((querySnapshot) => {
             querySnapshot.forEach((orderRef) => {
@@ -307,6 +400,27 @@ export default {
         this.$router.push('/')
       }
     })
+  },
+
+  methods: {
+    onDetails(
+      order_id,
+      order_name,
+      order_address,
+      order_phone_number,
+      order_courier_name,
+      order_tracking_number
+    ) {
+      this.shippingDetails = true
+      this.selectedOrder = {
+        order_id: order_id,
+        order_name: order_name,
+        order_address: order_address,
+        order_phone_number: order_phone_number,
+        order_courier_name: order_courier_name,
+        order_tracking_number: order_tracking_number,
+      }
+    },
   },
 }
 </script>
