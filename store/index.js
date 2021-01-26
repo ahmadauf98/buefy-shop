@@ -8,7 +8,8 @@ export const state = () => ({
     alertIconStyle: '',
     colorIcon: '',
     snackbar: false,
-    timeout: 1800,
+    multiLine: true,
+    timeout: 3500,
   },
 
   // List of Products
