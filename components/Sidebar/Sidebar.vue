@@ -20,7 +20,7 @@
 
     <div class="d-flex mt-0 mb-5">
       <span class="text-caption font-weight-regular"> RM0</span>
-      <span class="text-caption font-weight-regular ml-auto">{{ maxVal }}</span>
+      <span class="text-caption font-weight-regular ml-auto">RM{{ maxVal }}</span>
     </div>
 
     <v-divider class="my-5"></v-divider>
