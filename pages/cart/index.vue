@@ -205,8 +205,6 @@ export default {
 
             this.$store.commit('SET_CART_NUM', this.cart.length)
 
-            console.log('cart length:', this.cart.length)
-
             this.amount = 0
             // Calculate Total From Firebase
             this.cart.forEach((item) => {
@@ -215,13 +213,22 @@ export default {
                 .collection('products')
                 .doc(item.product_id)
                 .onSnapshot((i) => {
-                  if (i.data().sale == true) {
-                    this.amount += item.count * i.data().sale_price
-                    console.log('sale price: ', i.data().sale_price)
-                  } else {
-                    this.amount += item.count * i.data().price
-                    console.log('normal price: ', i.data().price)
-                  }
+                  // Get courier fee
+                  firebase
+                    .firestore()
+                    .collection('seller')
+                    .doc(i.data().seller_id)
+                    .collection('shipmentsettings')
+                    .doc(item.courier_id)
+                    .onSnapshot((courier) => {
+                      if (i.data().sale == true) {
+                        this.amount +=
+                          item.count * i.data().sale_price + courier.data().rate
+                      } else {
+                        this.amount +=
+                          item.count * i.data().price + courier.data().rate
+                      }
+                    })
                 })
             })
           })

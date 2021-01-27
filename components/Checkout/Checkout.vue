@@ -57,6 +57,7 @@ export default {
     return {
       userUid: '',
       order_id: '',
+      fee: 0,
     }
   },
   name: 'Checkout',
@@ -90,8 +91,8 @@ export default {
     })
   },
   methods: {
-    async beforePay() {
-      await this.pay({
+    beforePay() {
+      this.pay({
         url: STRIPE_URL,
       })
     },
@@ -101,6 +102,9 @@ export default {
     },
 
     pay: function (url) {
+      // Deduct product stock
+      this.deductStock()
+
       // Submit data to firebase
       this.submit()
 
@@ -129,58 +133,91 @@ export default {
           .firestore()
           .collection('products')
           .doc(item.product_id)
-          .onSnapshot((i) => {
+          .get()
+          .then((i) => {
             // initialise order_id
             var uniqid = require('uniqid')
             this.order_id = uniqid()
 
-            if (i.data().sale == true) {
-              firebase
-                .firestore()
-                .collection('order')
-                .doc(this.order_id)
-                .set({
-                  buyer_id: this.userUid,
-                  seller_id: i.data().seller_id,
-                  product_id: item.product_id,
-                  count: item.count,
-                  order_id: this.order_id,
-                  status: 'to_ship',
-                  courier_id: item.courier_id,
-                  name: this.shippingInformation.name,
-                  phone_number: this.shippingInformation.phone,
-                  address: this.shippingInformation.address,
-                  zip: this.shippingInformation.zip,
-                  city: this.shippingInformation.city,
-                  country: this.shippingInformation.country,
-                  message: this.shippingInformation.message,
-                  total_price: item.count * i.data().sale_price,
-                  tracking_id: null,
-                })
-            } else {
-              firebase
-                .firestore()
-                .collection('order')
-                .doc(this.order_id)
-                .set({
-                  buyer_id: this.userUid,
-                  seller_id: i.data().seller_id,
-                  product_id: item.product_id,
-                  count: item.count,
-                  order_id: this.order_id,
-                  status: 'to_ship',
-                  courier_id: item.courier_id,
-                  name: this.shippingInformation.name,
-                  phone_number: this.shippingInformation.phone,
-                  address: this.shippingInformation.address,
-                  zip: this.shippingInformation.zip,
-                  city: this.shippingInformation.city,
-                  country: this.shippingInformation.country,
-                  message: this.shippingInformation.message,
-                  total_price: item.count * i.data().price,
-                  tracking_id: null,
-                })
-            }
+            // Get courier fee
+            firebase
+              .firestore()
+              .collection('seller')
+              .doc(i.data().seller_id)
+              .collection('shipmentsettings')
+              .doc(item.courier_id)
+              .onSnapshot((courier) => {
+                if (i.data().sale == true) {
+                  firebase
+                    .firestore()
+                    .collection('order')
+                    .doc(this.order_id)
+                    .set({
+                      buyer_id: this.userUid,
+                      seller_id: i.data().seller_id,
+                      product_id: item.product_id,
+                      count: item.count,
+                      order_id: this.order_id,
+                      status: 'to_ship',
+                      courier_id: item.courier_id,
+                      name: this.shippingInformation.name,
+                      phone_number: this.shippingInformation.phone,
+                      address: this.shippingInformation.address,
+                      zip: this.shippingInformation.zip,
+                      city: this.shippingInformation.city,
+                      country: this.shippingInformation.country,
+                      message: this.shippingInformation.message,
+                      total_price:
+                        item.count * i.data().sale_price + courier.data().rate,
+                      tracking_id: null,
+                    })
+                } else {
+                  firebase
+                    .firestore()
+                    .collection('order')
+                    .doc(this.order_id)
+                    .set({
+                      buyer_id: this.userUid,
+                      seller_id: i.data().seller_id,
+                      product_id: item.product_id,
+                      count: item.count,
+                      order_id: this.order_id,
+                      status: 'to_ship',
+                      courier_id: item.courier_id,
+                      name: this.shippingInformation.name,
+                      phone_number: this.shippingInformation.phone,
+                      address: this.shippingInformation.address,
+                      zip: this.shippingInformation.zip,
+                      city: this.shippingInformation.city,
+                      country: this.shippingInformation.country,
+                      message: this.shippingInformation.message,
+                      total_price:
+                        item.count * i.data().price + courier.data().rate,
+                      tracking_id: null,
+                    })
+                }
+              })
+          })
+      })
+    },
+
+    deductStock() {
+      // for each item in cart
+      this.cart.forEach((item) => {
+        firebase
+          .firestore()
+          .collection('products')
+          .doc(item.product_id)
+          .get()
+          .then((doc) => {
+            firebase
+              .firestore()
+              .collection('products')
+              .doc(item.product_id)
+              .update({
+                stock: doc.data().stock - item.count,
+                sales: doc.data().sales + item.count,
+              })
           })
       })
     },

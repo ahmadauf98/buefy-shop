@@ -59,6 +59,13 @@
                         {{ courier.brand_name }}
                       </h1>
                     </div>
+                    <div class="d-flex align-center">
+                      <span
+                        class="text-color-grey text--lighten-2 caption mr-1"
+                      >
+                        Fee: RM {{ fee.toFixed(2) }}
+                      </span>
+                    </div>
                   </v-col>
                 </v-row>
               </v-card>
@@ -177,6 +184,7 @@ export default {
       courier: [],
       deleteProduct: false,
       opacity: 1,
+      fee: 0,
     }
   },
   name: 'CartProductListItem',
@@ -199,6 +207,17 @@ export default {
       .doc(this.item.product_id)
       .onSnapshot((item) => {
         this.product = item.data()
+
+        // Get courier fee
+        firebase
+          .firestore()
+          .collection('seller')
+          .doc(item.data().seller_id)
+          .collection('shipmentsettings')
+          .doc(this.item.courier_id)
+          .onSnapshot((i) => {
+            this.fee = i.data().rate
+          })
       })
 
     // Get Courier Data From Firebase
@@ -209,8 +228,6 @@ export default {
       .onSnapshot((item) => {
         this.courier = item.data()
       })
-
-    console.log(this.item.product_id)
   },
   methods: {
     minusQuantity() {
