@@ -157,6 +157,14 @@
                                       </h1>
                                     </NuxtLink>
                                   </div>
+
+                                  <div class="d-flex align-center">
+                                    <span
+                                      class="text-color-grey text--lighten-2 caption mr-1"
+                                    >
+                                      Fee: RM {{ courier.rate.toFixed(2) }}
+                                    </span>
+                                  </div>
                                 </v-col>
                               </v-row>
                             </v-card>
@@ -428,6 +436,7 @@ export default {
                     courier_feedback: doc_c.data().courier_feedback,
                     courier_img: doc_c.data().courier_img,
                     overall_rating: doc_c.data().overall_rating,
+                    rate: doc_ss.data().rate,
                   }
                   this.courierList.push(list)
                 })
