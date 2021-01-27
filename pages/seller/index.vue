@@ -42,12 +42,6 @@
                         </tr>
                         <tr>
                           <td class="pa-5 font-weight-bold">
-                            Most Top Courier
-                          </td>
-                          <td class="pa-5">abx_express</td>
-                        </tr>
-                        <tr>
-                          <td class="pa-5 font-weight-bold">
                             Number of product(s)
                           </td>
                           <td class="pa-5">{{ result }}</td>
@@ -176,7 +170,9 @@ export default {
 
       // Report Data
       cart: [],
+      income: [],
       my_products: [],
+      courier: [],
       my_namem: [],
       prod_count: [],
       result: '',
@@ -238,6 +234,8 @@ export default {
             this.my_ongoing = []
             this.my_shipped = []
             this.my_completed = []
+            this.income = []
+          
             querySnapshot.forEach((doc) => {
               if (doc.exists) {
                 if (doc.data().status == 'to_ship')
@@ -249,8 +247,12 @@ export default {
                 if (doc.data().status == 'cancelled')
                   this.my_cancelled.push(doc.data())
 
-                if (doc.data().status == 'completed')
+                if (doc.data().status == 'completed'){
                   this.my_completed.push(doc.data())
+                  this.income.push(doc.data().total_price)
+
+                }
+
               }
             })
 
@@ -258,6 +260,7 @@ export default {
             this.ship = this.my_shipped.length
             this.cancel = this.my_cancelled.length
             this.complete = this.my_completed.length
+            
           })
       } else {
         this.$router.replace('/')
@@ -287,7 +290,7 @@ export default {
   computed: {
     totalAmount: function () {
       var sum = 0
-      this.cart.forEach((e) => {
+      this.income.forEach((e) => {
         sum += e
       })
       return sum.toFixed(2)
