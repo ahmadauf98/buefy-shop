@@ -3,7 +3,7 @@
     <!-- Price Range-->
     <div class="mb-5">
       <h1 class="text-h6 font-weight-regular text-color-black">
-        Highest Price: RM{{ addedVal }}
+        Highest Price: RM{{ priceValue }}
       </h1>
     </div>
 
@@ -20,7 +20,9 @@
 
     <div class="d-flex mt-0 mb-5">
       <span class="text-caption font-weight-regular"> RM0</span>
-      <span class="text-caption font-weight-regular ml-auto">RM{{ addedVal }}</span>
+      <span class="text-caption font-weight-regular ml-auto"
+        >RM{{ addedVal }}</span
+      >
     </div>
 
     <v-divider class="my-5"></v-divider>
@@ -81,12 +83,10 @@ export default {
       products: [],
       max: [],
       maxVal: '',
-      addedVal:'',
-     
-      
+      addedVal: '',
 
       // User Input
-      priceValue: 300,
+      priceValue: '',
       getCategory: 'All',
       sale: false,
     }
@@ -104,8 +104,8 @@ export default {
           this.max.push(doc.data().price)
         })
         this.maxVal = Math.max.apply(Math, this.max)
-        this.addedVal= this.maxVal +10;
-        console.log(this.addedVal)
+        this.addedVal = this.maxVal + 10
+        this.priceValue = this.addedVal
         this.$store.commit('SET_PRODUCTS', this.products)
       })
   },
