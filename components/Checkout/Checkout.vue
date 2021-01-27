@@ -216,6 +216,7 @@ export default {
               .doc(item.product_id)
               .update({
                 stock: doc.data().stock - item.count,
+                sales: doc.data().sales + item.count,
               })
           })
       })
