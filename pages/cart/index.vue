@@ -127,7 +127,7 @@
                     <v-btn text @click="setActualStep(0)"> Back </v-btn>
                     <v-spacer></v-spacer>
                     <v-btn
-                      @click="emailLogin()"
+                      @click="validData()"
                       color="primary"
                       text
                       :disabled="
@@ -307,14 +307,14 @@ export default {
       return re.test(phone);
     },
     
-    // To validate the phone number
+    // To validate the zip code
     validZip:function(zip) {
       console.log('test function');
       var re = /^\d{5}$/;
       return re.test(zip);
     },
 
-    async emailLogin() {
+    async validData() {
       console.log("fyp xsoap lagi")
       try {
 
