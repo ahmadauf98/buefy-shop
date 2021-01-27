@@ -17,8 +17,6 @@
 
       <!-- If user login => Cart|User Btn, If user not auth => Sign Up|Login Btn -->
 
-     
-
       <!-- Cart Btn -->
       <v-btn
         v-show="isLogged == true"
@@ -97,26 +95,25 @@
               Seller Center</v-list-item-title
             >
           </v-list-item>
-          <!-- //////////////////////// -->
-          <br>
-          <!-- Buyer C -->
-          <v-list-item to="/buyer/buyercenter" class="mt-n5 mb-n1">
+
+          <br />
+          <!-- Seller Dashboard -->
+          <v-list-item to="/buyer/purchase/toship" class="mt-n5 mb-n1">
             <v-list-item-title class="d-flex align-center">
               <v-icon class="mr-1 ml-0" size="24" color="#3c3c3c"
-                >mdi-store-outline</v-icon
+                >mdi-shopping-outline</v-icon
               >
-              Buyer Center</v-list-item-title
+              My Purchase</v-list-item-title
             >
           </v-list-item>
-          <!-- /////////////////////// -->
 
-          <!-- Settings Button -->
-          <v-list-item to="/manager/auth/settings" class="mb-n5">
+          <!-- Account Button -->
+          <v-list-item to="/buyer/account/profile" class="mb-n5">
             <v-list-item-title class="d-flex align-center">
               <v-icon class="mr-1 ml-0" size="24" color="#3c3c3c"
-                >mdi-cog-outline</v-icon
+                >mdi-account-circle-outline</v-icon
               >
-              Settings</v-list-item-title
+              My Account</v-list-item-title
             >
           </v-list-item>
 
@@ -179,6 +176,7 @@ export default {
     return {
       // User Authentication
       isLogged: false,
+      user_id: '',
 
       // Data fetch from firebase
       firebase_data: '',
@@ -200,6 +198,8 @@ export default {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         this.isLogged = true
+
+        this.user_id = user.uid
 
         firebase
           .firestore()

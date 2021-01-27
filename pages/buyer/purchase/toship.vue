@@ -1,6 +1,9 @@
 <template>
   <v-app>
     <div>
+      <!-- notification -->
+      <notifications />
+
       <div class="section"><buyerWelcome /></div>
 
       <div>
@@ -11,7 +14,7 @@
 
           <v-col cols="9">
             <v-card class="pa-5 mb-15" flat>
-               
+              <buyerTab />
 
               <v-divider></v-divider>
 
@@ -95,10 +98,10 @@
               >
                 <div class="px-3 d-flex align-center">
                   <v-avatar class="mr-2" size="28">
-                    <img :src="order.buyer_profile_photo" alt="..." />
+                    <img :src="order.seller_profile_photo" alt="..." />
                   </v-avatar>
                   <h1 class="text-subtitle-2 font-weight-regular">
-                    {{ order.buyer_name }}
+                    {{ order.seller_name }} ({{ order.seller_shop_name }} Shop)
                   </h1>
 
                   <h1
@@ -178,19 +181,21 @@
                         <v-col cols="12" class="px-0">
                           <v-btn
                             @click="
-                              onShipNow(
+                              onCancelOrder(
                                 order.order_id,
                                 order.order_name,
                                 order.order_address,
                                 order.order_phone_number,
-                                order.courier_name
+                                order.courier_name,
+                                order.order_product_id,
+                                order.order_count
                               )
                             "
                             class="text-subtitle-2 px-0 text-capitalize text-color-blue font-weight-regular"
                             text
                           >
                             <v-icon class="mr-1" size="18">mdi-truck</v-icon>
-                            Order Complete
+                            Cancel Order
                           </v-btn>
                         </v-col>
                       </v-row>
@@ -205,7 +210,7 @@
     </div>
 
     <!-- Ship Product Overlay -->
-    <v-overlay :opacity="opacity" :value="shipProduct">
+    <v-overlay :opacity="opacity" :value="cancelProduct">
       <v-card
         class="mx-auto pa-10 black--text d-block align-center"
         min-height="300"
@@ -242,9 +247,24 @@
           </h1>
         </div>
 
+        <!-- Courier Tracking Number -->
+        <div>
+          <h1 class="text-subtitle-1 font-weight-medium mb-2">
+            <!-- <v-icon class="mr-1" color="primary">mdi-truck-fast</v-icon> -->
+            Reason of Cancellation
+          </h1>
+          <v-text-field
+            v-model="cancel_reason"
+            placeholder="Please state your reason"
+            outlined
+            dense
+          ></v-text-field>
+        </div>
+
+        <!-- Action Button -->
         <div class="d-flex justify-end">
           <v-btn
-            @click="shipProduct = false"
+            @click="cancelProduct = false"
             class="px-10 mr-3 text-capitalize"
             color="grey lighten-1"
             height="40"
@@ -255,14 +275,21 @@
             Cancel</v-btn
           >
           <v-btn
-            @click="shipNow(selectedOrder.order_id, tracking_number)"
+            @click="
+              cancelOrder(
+                selectedOrder.order_id,
+                cancel_reason,
+                selectedOrder.order_product_id,
+                selectedOrder.order_order_count
+              )
+            "
             class="px-10 ml-3 text-capitalize"
-            color="green darken-1"
+            color="red darken-1"
             height="40"
             width="150"
             depressed
           >
-            <span class="text-color-white"> Order Received </span>
+            <span class="text-color-white"> Cancel Now </span>
           </v-btn>
         </div>
       </v-card>
@@ -276,21 +303,26 @@ import 'firebase/auth'
 import 'firebase/firestore'
 import buyerSidebar from '@/components/buyerSidebar'
 import buyerWelcome from '@/components/buyerWelcome'
+import buyerTab from '@/components/buyerTab'
+import notifications from '~/components/notifications'
 
 export default {
   components: {
-     buyerWelcome,
+    buyerWelcome,
     buyerSidebar,
+    buyerTab,
+    notifications,
   },
+  
   data() {
     return {
       // Order Data
       orders: [],
       selectedOrder: '',
-      tracking_number: '',
+      cancel_reason: '',
 
       // Ship Product Overlay
-      shipProduct: false,
+      cancelProduct: false,
       opacity: 1,
     }
   },
@@ -303,7 +335,7 @@ export default {
           .firestore()
           .collection('order')
           .where('buyer_id', '==', user.uid)
-          .where('status', '==', 'shipping')
+          .where('status', '==', 'to_ship')
           .get()
           .then((querySnapshot) => {
             querySnapshot.forEach((orderRef) => {
@@ -325,6 +357,7 @@ export default {
                 order_status: orderRef.data().status,
                 order_name: orderRef.data().name,
                 order_count: orderRef.data().count,
+                order_product_id: orderRef.data().product_id,
 
                 // Courier Data
                 courier_name: '',
@@ -333,9 +366,10 @@ export default {
                 product_name: '',
                 product_image: '',
 
-                // Buyer Data
-                buyer_name: '',
-                buyer_profile_photo: '',
+                // Seller Data
+                seller_name: '',
+                seller_shop_name: '',
+                seller_profile_photo: '',
               }
 
               // Get Product Info From Firebase
@@ -359,15 +393,16 @@ export default {
                   order_list.product_image = productRef.data().image
                 })
 
-              // Get Buyer Info From Firebase
+              // Get seller Info From Firebase
               firebase
                 .firestore()
                 .collection('users')
-                .doc(orderRef.data().buyer_id)
+                .doc(orderRef.data().seller_id)
                 .get()
-                .then((buyerRef) => {
-                  order_list.buyer_name = buyerRef.data().name
-                  order_list.buyer_profile_photo = buyerRef.data().profile_photo
+                .then((sellerRef) => {
+                  order_list.seller_name = sellerRef.data().name
+                  order_list.seller_shop_name = sellerRef.data().shop_name
+                  order_list.seller_profile_photo = sellerRef.data().profile_photo
                 })
 
               // Push into array
@@ -381,40 +416,78 @@ export default {
   },
 
   methods: {
-    onShipNow(
+    onCancelOrder(
       order_id,
       order_name,
       order_address,
       order_phone_number,
-      order_courier_name
+      order_courier_name,
+      order_product_id,
+      order_count
     ) {
-      this.shipProduct = true
+      this.cancelProduct = true
       this.selectedOrder = {
         order_id: order_id,
         order_name: order_name,
         order_address: order_address,
         order_phone_number: order_phone_number,
         order_courier_name: order_courier_name,
+        order_product_id: order_product_id,
+        order_order_count: order_count,
       }
     },
 
-    async shipNow(order_id, tracking_number) {
+    async cancelOrder(order_id, cancel_reason, product_id, order_count) {
       try {
-      
+        if (cancel_reason == '') {
+          this.$store.commit('SET_NOTIFICATION', {
+            alert: 'Please let us know your reason',
+            alertIcon: 'mdi-alert-circle',
+            alertIconStyle: 'mr-2 align-self-top',
+            colorIcon: 'red darken-1',
+            snackbar: true,
+          })
+        } else {
           firebase
             .firestore()
             .collection('order')
             .doc(order_id)
             .update({
-              // tracking_id: tracking_number,
-              status: 'completed',
+              status: 'cancelled',
+              cancel_reason: cancel_reason,
             })
             .then(() => {
-              this.$router.push('/buyer/report/completedbuyer')
+              this.$router.push('/buyer/purchase/cancellation')
             })
-         
+
+          firebase
+            .firestore()
+            .collection('products')
+            .doc(product_id)
+            .get()
+            .then((doc) => {
+              const sales = doc.data().sales - order_count
+              const stock = doc.data().stock + order_count
+
+              firebase
+                .firestore()
+                .collection('products')
+                .doc(product_id)
+                .update({
+                  sales: sales,
+                  stock: stock,
+                })
+            })
+        }
       } catch (error) {
         console.log(error.message)
+        this.$store.commit('SET_NOTIFICATION', {
+          alert: error.message,
+          alertIcon: 'mdi-alert-circle',
+          alertIconStyle: 'mr-2 align-self-top',
+          colorIcon: 'red darken-1',
+          snackbar: true,
+        })
       }
     },
   },
