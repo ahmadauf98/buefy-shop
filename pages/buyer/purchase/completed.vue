@@ -375,6 +375,7 @@ export default {
                 .get()
                 .then((sellerRef) => {
                   order_list.seller_name = sellerRef.data().name
+                  order_list.seller_shop_name = sellerRef.data().shop_name
                   order_list.seller_profile_photo = sellerRef.data().profile_photo
                 })
 

@@ -378,7 +378,7 @@ export default {
                 seller_profile_photo: '',
               }
 
-              // Get Product Info From Firebase
+              // Get Courier Info From Firebase
               firebase
                 .firestore()
                 .collection('courier')
@@ -396,7 +396,7 @@ export default {
                 .get()
                 .then((productRef) => {
                   order_list.product_name = productRef.data().name
-                  order_list.seller_shop_name = sellerRef.data().shop_name
+                  order_list.product_shop_name = productRef.data().shop_name
                   order_list.product_image = productRef.data().image
                 })
 
@@ -408,6 +408,7 @@ export default {
                 .get()
                 .then((sellerRef) => {
                   order_list.seller_name = sellerRef.data().name
+                  order_list.seller_shop_name = sellerRef.data().shop_name
                   order_list.seller_profile_photo = sellerRef.data().profile_photo
                 })
 
