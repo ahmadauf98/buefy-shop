@@ -3,7 +3,7 @@
     <!-- Price Range-->
     <div class="mb-5">
       <h1 class="text-h6 font-weight-regular text-color-black">
-        Highest Price: RM{{ priceValue }}
+        Highest Price: RM{{ addedVal }}
       </h1>
     </div>
 
@@ -12,7 +12,7 @@
       id="priceValue"
       type="range"
       :min="0"
-      :max="400"
+      :max="addedVal"
       step="1"
       v-model="priceValue"
       @change="onGetFilter()"
@@ -20,7 +20,7 @@
 
     <div class="d-flex mt-0 mb-5">
       <span class="text-caption font-weight-regular"> RM0</span>
-      <span class="text-caption font-weight-regular ml-auto">RM400</span>
+      <span class="text-caption font-weight-regular ml-auto">RM{{ addedVal }}</span>
     </div>
 
     <v-divider class="my-5"></v-divider>
@@ -79,6 +79,11 @@ export default {
       // Product Category
       categories: ['All', 'Hats', 'Jacket', 'Shirt', 'Shoe', 'Sweater'],
       products: [],
+      max: [],
+      maxVal: '',
+      addedVal:'',
+     
+      
 
       // User Input
       priceValue: 300,
@@ -93,9 +98,14 @@ export default {
       .collection('products')
       .get()
       .then((querySnapshot) => {
+        this.max = []
         querySnapshot.forEach((doc) => {
           this.products.push(doc.data())
+          this.max.push(doc.data().price)
         })
+        this.maxVal = Math.max.apply(Math, this.max)
+        this.addedVal= this.maxVal +10;
+        console.log(this.addedVal)
         this.$store.commit('SET_PRODUCTS', this.products)
       })
   },
