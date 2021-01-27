@@ -1,5 +1,8 @@
 <template>
   <v-app>
+    <!-- notification -->
+    <notifications />
+
     <div>
       <div class="section"></div>
     </div>
@@ -121,12 +124,12 @@
                             >
                               <v-row>
                                 <!-- Courier Brand Image -->
-                                <v-col cols="4">
+                                <v-col cols="4" class="d-flex align-center">
                                   <v-img
                                     class="mx-auto"
                                     aspect-ratio="1.7"
-                                    width="40"
-                                    height="40"
+                                    width="50"
+                                    height="50"
                                     :src="courier.courier_img"
                                     alt="..."
                                   ></v-img>
@@ -158,6 +161,7 @@
                                     </NuxtLink>
                                   </div>
 
+                                  <!-- Courier Fee -->
                                   <div class="d-flex align-center">
                                     <span
                                       class="text-color-grey text--lighten-2 caption mr-1"
@@ -184,10 +188,12 @@
                     width="35"
                     class="d-flex justify-center align-center"
                     @click="minusQuantity()"
+                    :disabled="stock == 0"
                   >
                     <v-icon>mdi-minus</v-icon>
                   </v-card>
                   <v-card
+                    v-if="stock != 0"
                     tile
                     outlined
                     height="35"
@@ -196,20 +202,38 @@
                     >{{ product_quantity }}</v-card
                   >
                   <v-card
+                    v-else
+                    tile
+                    outlined
+                    height="35"
+                    width="60"
+                    class="d-flex align-center justify-center"
+                    >0</v-card
+                  >
+                  <v-card
                     tile
                     outlined
                     height="35"
                     width="35"
                     class="d-flex justify-center align-center"
+                    :disabled="stock == 0"
                     @click="addQuantity()"
                   >
                     <v-icon>mdi-plus</v-icon>
                   </v-card>
 
                   <h1
+                    v-if="stock != 0"
                     class="text-subtitle-2 font-weight-regular ml-4 text-color-grey"
                   >
                     {{ stock }} item left
+                  </h1>
+
+                  <h1
+                    v-else
+                    class="text-subtitle-2 font-weight-regular ml-4 text-color-grey"
+                  >
+                    Sold Out
                   </h1>
                 </v-row>
 
@@ -219,6 +243,7 @@
                     <v-btn
                       class="text-subtitle-2 font-weight-regular text-capitalize mt-2"
                       color="primary"
+                      :disabled="stock == 0"
                       tile
                       outlined
                       large
@@ -325,8 +350,13 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
+import notifications from '~/components/notifications'
 
 export default {
+  components: {
+    notifications,
+  },
+
   data() {
     return {
       //  User Data
@@ -467,18 +497,36 @@ export default {
     },
 
     addToCart() {
-      // Get Courier Data From Firebase
-      firebase
-        .firestore()
-        .collection('users')
-        .doc(this.userUid)
-        .collection('cart')
-        .doc(this.product_id)
-        .set({
-          count: this.product_quantity,
-          courier_id: this.selectedCourier,
-          product_id: this.product_id,
+      if (this.selectedCourier == '') {
+        this.$store.commit('SET_NOTIFICATION', {
+          alert: 'Please select courier',
+          alertIcon: 'mdi-alert-circle',
+          alertIconStyle: 'mr-2 align-self-top',
+          colorIcon: 'red darken-1',
+          snackbar: true,
         })
+      } else {
+        this.$store.commit('SET_NOTIFICATION', {
+          alert: 'Item has been added to the shopping cart',
+          alertIcon: 'mdi-shopping',
+          alertIconStyle: 'mr-2 align-self-top',
+          colorIcon: 'primary',
+          snackbar: true,
+        })
+
+        // Get Courier Data From Firebase
+        firebase
+          .firestore()
+          .collection('users')
+          .doc(this.userUid)
+          .collection('cart')
+          .doc(this.product_id)
+          .set({
+            count: this.product_quantity,
+            courier_id: this.selectedCourier,
+            product_id: this.product_id,
+          })
+      }
     },
   },
 }

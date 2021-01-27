@@ -25,10 +25,23 @@
             </div>
           </div>
           <div v-if="actualStep === 1">
-            <!-- Form Here -->
+            <!-- Shipping Information Form Here -->
             <v-row class="d-flex justify-center">
               <v-col cols="6">
                 <v-card class="pa-10" flat>
+                  <p class="text-h5 mt-n3 font-weight-medium text-color-black">
+                    <strong>Shipping</strong> Information
+                  </p>
+
+                  <p
+                    class="text-subtitle-2 font-weight-regular mt-n5 text-color-grey"
+                  >
+                    Please fill in all information.
+                  </p>
+
+                  <v-divider class="mt-n1 mb-10"></v-divider>
+
+                  <!-- FullName Field -->
                   <v-text-field
                     label="Full Name"
                     placeholder="Enter your full name"
@@ -38,6 +51,8 @@
                     :rules="[() => !!name || 'This field is required']"
                     required
                   ></v-text-field>
+
+                  <!-- Phone Number Field -->
                   <v-text-field
                     label="Phone Number"
                     placeholder="Enter your phone number"
@@ -47,6 +62,8 @@
                     :rules="[() => !!phone || 'This field is required']"
                     required
                   ></v-text-field>
+
+                  <!-- Adress Field -->
                   <v-text-field
                     label="Address"
                     placeholder="Enter your address"
@@ -56,6 +73,8 @@
                     :rules="[() => !!address || 'This field is required']"
                     required
                   ></v-text-field>
+
+                  <!-- Zip Code Field -->
                   <v-text-field
                     label="Zip"
                     placeholder="Enter your zip"
@@ -65,15 +84,19 @@
                     :rules="[() => !!zip || 'This field is required']"
                     required
                   ></v-text-field>
+
+                  <!-- City/State Field -->
                   <v-text-field
-                    label="City"
-                    placeholder="Enter your city"
+                    label="City/State"
+                    placeholder="Enter your city/state"
                     outlined
                     ref="city"
                     v-model="city"
                     :rules="[() => !!city || 'This field is required']"
                     required
                   ></v-text-field>
+
+                  <!-- Country Field -->
                   <v-text-field
                     label="Country"
                     placeholder="Enter your country"
@@ -83,6 +106,8 @@
                     :rules="[() => !!country || 'This field is required']"
                     required
                   ></v-text-field>
+
+                  <!-- Buyer Message -->
                   <v-text-field
                     label="Message"
                     placeholder="Enter your message"
@@ -90,7 +115,10 @@
                     ref="message"
                     v-model="message"
                   ></v-text-field>
+
                   <v-divider class="mt-6"></v-divider>
+
+                  <!-- Button Action -->
                   <v-card-actions>
                     <v-btn text @click="setActualStep(0)"> Back </v-btn>
                     <v-spacer></v-spacer>
@@ -118,21 +146,44 @@
             <Checkout :total="amount"></Checkout>
           </div>
         </div>
-        <div
-          class="empty has-text-centered"
+        <v-card
+          class="d-flex align-center justify-center"
           v-else-if="cart_num == 0 && !success"
+          height="500px"
+          flat
         >
-          <h3>Your cart is empty.</h3>
-          <nuxt-link exact="exact" to="/"
-            ><button class="button">Fill er up!</button></nuxt-link
-          >
-        </div>
+          <div class="text-center">
+            <span style="font-size: 100px; color: #b5b5b5">
+              <i class="fas fa-cart-arrow-down"></i>
+            </span>
+
+            <h1
+              class="mt-n2 text-subtitle-1 font-weight-medium text-color-grey"
+            >
+              Your shopping cart is empty
+            </h1>
+
+            <v-btn to="/" class="mt-1" color="primary" depressed tile>
+              Go Shopping Now
+            </v-btn>
+          </div>
+        </v-card>
         <div class="has-text-centered" v-else>
-          <h2>Success!</h2>
-          <p>Your order has been processed, it will be delivered shortly.</p>
-          <nuxt-link exact="exact" to="/"
-            ><button class="button">Fill again your cart</button></nuxt-link
+          <v-card
+            class="d-flex align-center justify-center"
+            height="500px"
+            flat
           >
+            <div class="text-center">
+              <h2>Success!</h2>
+              <p>
+                Your order has been processed, it will be delivered shortly.
+              </p>
+              <v-btn to="/" class="mt-1" color="primary" depressed tile>
+                Go Shopping Again
+              </v-btn>
+            </div>
+          </v-card>
         </div>
       </div>
     </div>
@@ -265,4 +316,8 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.text-color-grey {
+  color: #b5b5b5;
+}
+</style>

@@ -1,45 +1,52 @@
 <template>
-  <div class="content">
-    <transition name="fade">
-      <form
-        class="payment"
-        v-if="status !== 'failure'"
-        @submit.prevent="beforePay"
-      >
-        <h3>Please enter your payment details:</h3>
-        <div class="field">
-          <label class="label" for="card">Credit Card</label>
-          <p class="help">
-            Test using this credit card:&nbsp;<strong
-              >4242 4242 4242 4242,<br /></strong
-            >and enter any 5 digits for the zip code
-          </p>
-        </div>
-        <div class="field">
-          <Card
-            class="stripe-card input"
-            id="card"
-            :class="{ complete: isStripeCardCompleted }"
-            :stripe="stripePublishableKey"
-            @change="setIsStripeCardCompleted($event.complete)"
-          ></Card>
-        </div>
-        <div class="field">
-          <button
-            class="button is-success pay-with-stripe"
-            :disabled="!isStripeCardCompleted"
-            :class="{ 'is-loading': isLoading }"
-          >
-            Pay with credit card
+  <div class="d-flex justify-center">
+    <v-card class="pa-10" width="900">
+      <transition name="fade">
+        <form
+          class="payment"
+          v-if="status !== 'failure'"
+          @submit.prevent="beforePay"
+        >
+          <h3>Please enter your payment details:</h3>
+          <div class="field">
+            <label class="label" for="card">Credit Card</label>
+            <p class="help">
+              Test using this credit card:&nbsp;<strong
+                >4242 4242 4242 4242,<br /></strong
+              >and enter any 5 digits for the zip code
+            </p>
+          </div>
+          <div class="field">
+            <Card
+              class="stripe-card input"
+              id="card"
+              :class="{ complete: isStripeCardCompleted }"
+              :stripe="stripePublishableKey"
+              @change="setIsStripeCardCompleted($event.complete)"
+            ></Card>
+          </div>
+          <div class="field">
+            <button
+              class="button is-success pay-with-stripe"
+              :disabled="!isStripeCardCompleted"
+              :class="{ 'is-loading': isLoading }"
+            >
+              Pay with credit card
+            </button>
+          </div>
+        </form>
+        <div
+          class="statusFailure has-text-centered"
+          v-if="status === 'failure'"
+        >
+          <h3>Oh No!</h3>
+          <p>Something went wrong!</p>
+          <button class="button" @click="clearCheckout">
+            Please try again
           </button>
         </div>
-      </form>
-      <div class="statusFailure has-text-centered" v-if="status === 'failure'">
-        <h3>Oh No!</h3>
-        <p>Something went wrong!</p>
-        <button class="button" @click="clearCheckout">Please try again</button>
-      </div>
-    </transition>
+      </transition>
+    </v-card>
   </div>
 </template>
 
@@ -60,10 +67,13 @@ export default {
       fee: 0,
     }
   },
+
   name: 'Checkout',
+
   components: {
     Card,
   },
+
   computed: {
     ...mapState([
       'isStripeCardCompleted',
@@ -75,12 +85,14 @@ export default {
     ]),
     stripePublishableKey: () => process.env.STRIPE_PUBLISHABLE_KEY,
   },
+
   props: {
     total: {
       type: [Number, String],
       required: true,
     },
   },
+
   mounted() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
@@ -90,6 +102,7 @@ export default {
       }
     })
   },
+  
   methods: {
     beforePay() {
       this.pay({
