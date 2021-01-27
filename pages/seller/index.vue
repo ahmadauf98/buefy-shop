@@ -8,10 +8,9 @@
           <v-col cols="3">
             <sellerSidebar />
           </v-col>
- 
+
           <v-col cols="9">
-             
-<v-card
+            <v-card
               class="mx-auto"
               max-width="900"
               height="500"
@@ -21,7 +20,7 @@
               <v-list-item three-line>
                 <v-list-item-content>
                   <v-list-item-title class="text-center">
-                    Seller Report  
+                    Seller Report
                   </v-list-item-title>
                   <v-simple-table>
                     <template v-slot:default>
@@ -29,52 +28,49 @@
                       <tbody>
                         <tr>
                           <td>Seller Income(RM)</td>
-                          <td>{{totalAmount}}  </td>
-                        <!-- <tr v-for="item in desserts" :key="item.name"> -->
+                          <td>{{ totalAmount }}</td>
+                          <!-- <tr v-for="item in desserts" :key="item.name"> -->
                           <!-- <td>{{ item.name }}</td>
                           <td>{{ item.calories }}</td> -->
                         </tr>
                         <tr>
-                          <td>Most Expensive Item in Shop (RM)            </td>
-                          <td>{{expensive}} (RM{{maxVal}})</td>
+                          <td>Most Expensive Item in Shop (RM)</td>
+                          <td>{{ expensive }} (RM{{ maxVal }})</td>
                         </tr>
                         <tr>
                           <td>Most Cheap Item in Shop (RM)</td>
-                          <td>{{cheap}} (RM{{minVal}})</td>
-                        </tr>
-                         <tr>
-                          <td>Most Top Courier </td>
-                          <td>  abx_express </td>
+                          <td>{{ cheap }} (RM{{ minVal }})</td>
                         </tr>
                         <tr>
-                          <td>Number of product(s) </td>
-                          <td>{{result}} </td>
+                          <td>Most Top Courier</td>
+                          <td>abx_express</td>
                         </tr>
                         <tr>
-                          <td>Number of ongoing shipment </td>
-                          <td>{{on }}  </td>
+                          <td>Number of product(s)</td>
+                          <td>{{ result }}</td>
                         </tr>
                         <tr>
-                          <td>Number of shipped order </td>
-                          <td> {{ship }} </td>
+                          <td>Number of ongoing shipment</td>
+                          <td>{{ on }}</td>
                         </tr>
                         <tr>
-                          <td>Number of cancelled order </td>
-                          <td> {{cancel }} </td>
+                          <td>Number of shipped order</td>
+                          <td>{{ ship }}</td>
                         </tr>
                         <tr>
-                          <td>Number of completed order </td>
-                          <td> {{complete }} </td>
+                          <td>Number of cancelled order</td>
+                          <td>{{ cancel }}</td>
                         </tr>
-                         
+                        <tr>
+                          <td>Number of completed order</td>
+                          <td>{{ complete }}</td>
+                        </tr>
                       </tbody>
                     </template>
                   </v-simple-table>
                 </v-list-item-content>
               </v-list-item>
             </v-card>
-
-
           </v-col>
         </v-row>
       </div>
@@ -169,18 +165,18 @@ export default {
 
       //////////////////////syafiq part//
       cart: [], //
-      
+
       my_products: [],
       my_namem: [], //
       prod_count: [], //
-       result:'',
-       on:'',
-       ship:'',
-       cancel:'',
-       complete:'',
-      name : '', //
-      maxVal:'',
-      minVal:'',
+      result: '',
+      on: '',
+      ship: '',
+      cancel: '',
+      complete: '',
+      name: '', //
+      maxVal: '',
+      minVal: '',
       my_ongoing: [],
       my_shipped: [], //
       my_cancelled: [],
@@ -226,16 +222,16 @@ export default {
               }
             })
             // console.log(this.cart)
-            this.maxVal = Math.max.apply(Math, this.cart);
-            this.minVal = Math.min.apply(Math, this.cart);
-            this.result = this.my_namem.length;
+            this.maxVal = Math.max.apply(Math, this.cart)
+            this.minVal = Math.min.apply(Math, this.cart)
+            this.result = this.my_namem.length
           })
       } else {
         this.$router.replace('/')
-      } 
+      }
     })
     ///////////////////////////////////////syaf-2////
-      firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         firebase
           .firestore()
@@ -248,37 +244,32 @@ export default {
             this.my_completed = []
             querySnapshot.forEach((doc) => {
               if (doc.exists) {
+                if (doc.data().status == 'to_ship')
+                  this.my_ongoing.push(doc.data())
 
-                if(doc.data().status == 'to_ship')
-                this.my_ongoing.push(doc.data())
+                if (doc.data().status == 'shipping')
+                  this.my_shipped.push(doc.data())
 
-                if(doc.data().status == 'shipping')
-                this.my_shipped.push(doc.data())
+                if (doc.data().status == 'cancelled')
+                  this.my_cancelled.push(doc.data())
 
-                if(doc.data().status == 'cancelled')
-                this.my_cancelled.push(doc.data())
-
-                if(doc.data().status == 'completed')
-                this.my_completed.push(doc.data())
-                 
+                if (doc.data().status == 'completed')
+                  this.my_completed.push(doc.data())
               }
             })
-             
+
             // this.on =  this.my_shipped;
-               this.on = this.my_ongoing.length;
-               this.ship = this.my_shipped.length;
-               this.cancel = this.my_cancelled.length;
-               this.complete = this.my_completed.length;
-             
+            this.on = this.my_ongoing.length
+            this.ship = this.my_shipped.length
+            this.cancel = this.my_cancelled.length
+            this.complete = this.my_completed.length
           })
       } else {
         this.$router.replace('/')
-      } 
+      }
     })
     //////////////////////////////////////
   },
-
-
 
   methods: {
     // when user click cancel button
@@ -298,8 +289,8 @@ export default {
         .then((this.setShopName = false))
     },
   },
-/////////////////////////////////////
-computed: {
+  /////////////////////////////////////
+  computed: {
     totalAmount: function () {
       var sum = 0
       this.cart.forEach((e) => {
@@ -311,42 +302,35 @@ computed: {
     expensive: function () {
       var sum = ''
       // const sum   = this.my_products.filter(i => i.price == this.maxVal)
-      this.my_products.filter(i => i.price == this.maxVal).forEach((e) => {
-        sum = e.name
-      })
-      return sum 
-        
+      this.my_products
+        .filter((i) => i.price == this.maxVal)
+        .forEach((e) => {
+          sum = e.name
+        })
+      return sum
     },
 
     cheap: function () {
       var sum = ''
       // const sum   = this.my_products.filter(i => i.price == this.maxVal)
-      this.my_products.filter(i => i.price == this.minVal).forEach((e) => {
-        sum = e.name
-      })
-      return sum 
-        
+      this.my_products
+        .filter((i) => i.price == this.minVal)
+        .forEach((e) => {
+          sum = e.name
+        })
+      return sum
     },
 
-      ongoing: function () {
+    ongoing: function () {
       var sum = ''
       // const sum   = this.my_products.filter(i => i.price == this.maxVal)
-      this.my_products.filter(i => i.price == this.minVal).forEach((e) => {
-        sum = e.name
-      })
-      return sum 
-        
+      this.my_products
+        .filter((i) => i.price == this.minVal)
+        .forEach((e) => {
+          sum = e.name
+        })
+      return sum
     },
-    
-
-
- 
   },
-
-
-
-
-
-
 }
 </script>
