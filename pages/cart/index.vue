@@ -25,7 +25,11 @@
             </div>
           </div>
           <div v-if="actualStep === 1">
-            <!-- Shipping Information Form Here -->
+            
+            <!-- notification -->
+            <notifications/>
+
+            <!-- Shipping Information Form Here --> 
             <v-row class="d-flex justify-center">
               <v-col cols="6">
                 <v-card class="pa-10" flat>
@@ -123,9 +127,9 @@
                     <v-btn text @click="setActualStep(0)"> Back </v-btn>
                     <v-spacer></v-spacer>
                     <v-btn
+                      @click="emailLogin()"
                       color="primary"
                       text
-                      @click="next()"
                       :disabled="
                         name == '' ||
                         phone == '' ||
@@ -200,6 +204,7 @@ import stepMenuContent from '@/components/StepMenu/stepMenuContent.json'
 import 'vue-form-json/dist/vue-form-json.css'
 import Checkout from '@/components/Checkout'
 import { mapState } from 'vuex'
+import notifications from '~/components/notifications'
 
 export default {
   data() {
@@ -226,7 +231,9 @@ export default {
     CartProductListItem,
     StepMenu,
     Checkout,
+    notifications,
   },
+
   computed: {
     ...mapState(['success', 'actualStep', 'cart_num']),
     stepMenuContent: () => stepMenuContent,
@@ -291,6 +298,57 @@ export default {
   methods: {
     setActualStep: function (num) {
       this.$store.commit('SET_ACTUAL_STEP', num)
+    },
+
+    // To validate the phone number
+    validPhone:function(phone) {
+      console.log('test function');
+      var re = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/;
+      return re.test(phone);
+    },
+    
+    // To validate the phone number
+    validZip:function(zip) {
+      console.log('test function');
+      var re = /^\d{5}$/;
+      return re.test(zip);
+    },
+
+    async emailLogin() {
+      console.log("fyp xsoap lagi")
+      try {
+
+        //validate whether phone number is valid or not
+        if (!this.validPhone(this.phone)) {
+        this.$store.commit('SET_NOTIFICATION', {
+          alert: 'Please insert a valid phone number.',
+          alertIcon: 'mdi-alert-circle',
+          alertIconStyle: 'mr-2 align-self-top',
+          colorIcon: 'red darken-1',
+          snackbar: true,})
+
+        //validate whether zip is valid or not
+        }else if (!this.validZip(this.zip)) {
+        this.$store.commit('SET_NOTIFICATION', {
+          alert: 'Please insert a valid zip code containing only 5 number.',
+          alertIcon: 'mdi-alert-circle',
+          alertIconStyle: 'mr-2 align-self-top',
+          colorIcon: 'red darken-1',
+          snackbar: true,})
+
+        }else {
+          this.next()
+        }
+        
+      } catch (error) {
+        console.log(error.message)
+        this.$store.commit('SET_NOTIFICATION', {
+            alert: error.message,
+            alertIcon: 'mdi-alert-circle',
+            alertIconStyle: 'mr-2 align-self-top',
+            colorIcon: 'red darken-1',
+            snackbar: true,})
+      }
     },
 
     next: function () {
