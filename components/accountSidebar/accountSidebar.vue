@@ -27,33 +27,6 @@
           ></v-list-item-title>
         </v-list-item>
       </v-list-group>
-
-      <!-- My Purchase -->
-      <v-list-group :value="true">
-        <template v-slot:activator>
-          <v-list-item-icon>
-            <span style="font-size: 24px; color: #1976d2">
-              <i class="fas fa-shopping-bag"></i>
-            </span>
-          </v-list-item-icon>
-          <v-list-item-title class="font-weight-medium"
-            >My Purchase</v-list-item-title
-          >
-        </template>
-
-        <v-list-item
-          v-for="([title, link], i) in purchase"
-          :key="i"
-          link
-          class="px-15"
-          :to="link"
-        >
-          <v-list-item-title
-            v-text="title"
-            class="px-3 text-subtitle-2 font-weight-regular text-color-black"
-          ></v-list-item-title>
-        </v-list-item>
-      </v-list-group>
     </v-list>
   </v-card>
 </template>
@@ -62,10 +35,9 @@
 export default {
   data() {
     return {
-      accounts: [['Profile', '/buyer/account/profile']],
-      purchase: [
-        ['To Ship', '/buyer/purchase/toship'],
-        ['Completed', '/buyer/purchase/completed'],
+      accounts: [
+        ['Profile', '/account/profile'],
+        ['Change Password', '/account/changepassword'],
       ],
     }
   },

@@ -1,6 +1,9 @@
 <template>
   <v-app>
     <div>
+      <!-- notification -->
+      <notifications />
+
       <div class="section"><buyerWelcome /></div>
 
       <div>
@@ -11,7 +14,7 @@
 
           <v-col cols="9">
             <v-card class="pa-5 mb-15" flat>
-           
+              <buyerTab />
 
               <v-divider></v-divider>
 
@@ -95,10 +98,10 @@
               >
                 <div class="px-3 d-flex align-center">
                   <v-avatar class="mr-2" size="28">
-                    <img :src="order.buyer_profile_photo" alt="..." />
+                    <img :src="order.seller_profile_photo" alt="..." />
                   </v-avatar>
                   <h1 class="text-subtitle-2 font-weight-regular">
-                    {{ order.buyer_name }}
+                    {{ order.seller_name }} ({{ order.seller_shop_name }} Shop)
                   </h1>
 
                   <h1
@@ -148,10 +151,10 @@
                       <v-row class="my-auto">
                         <v-col cols="12" class="px-0">
                           <h1
-                            v-if="order.order_status == 'cancelled'"
+                            v-if="order.order_status == 'shipping'"
                             class="text-subtitle-2"
                           >
-                            Cancelled
+                            Shipping
                           </h1>
                         </v-col>
                       </v-row>
@@ -187,12 +190,26 @@
                                 order.order_tracking_number
                               )
                             "
-                            class="text-subtitle-2 px-0 text-capitalize text-color-green font-weight-regular"
+                            class="text-subtitle-2 px-0 text-capitalize text-color-blue font-weight-regular"
                             text
                           >
-                            <v-icon class="mr-1" size="18"
-                              >mdi-truck-check</v-icon
-                            >
+                            <i class="mr-1" style="fill: #1976d2">
+                              <svg
+                                width="18"
+                                height="18"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 16 16"
+                              >
+                                <g>
+                                  <path
+                                    d="M6.868 13.717H2.469a.49.49 0 0 1-.489-.489V2.476c0-.274.215-.489.49-.489h9.774a.49.49 0 0 1 .489.49v4.398a.489.489 0 0 0 .977 0V1.987a.98.98 0 0 0-.977-.977H1.98a.98.98 0 0 0-.977.977v11.73c0 .538.44.978.977.978h4.888a.489.489 0 1 0 0-.978zm7.593.089l-1.27-1.27c-.099-.098-.196-.098-.294-.098-.293 0-.489.195-.489.488 0 .098 0 .196.098.294l1.27 1.27c.098.098.196.196.392.196.293 0 .488-.196.488-.489 0-.098-.097-.293-.195-.391z"
+                                  ></path>
+                                  <path
+                                    d="M10.642 7.83a2.932 2.932 0 1 0 0 5.866 2.932 2.932 0 0 0 0-5.865zm0 4.888a1.955 1.955 0 1 1-.089-3.909 1.955 1.955 0 0 1 .089 3.91zm.495-7.808H3.302a.482.482 0 0 1-.481-.48v-.016c0-.265.216-.481.48-.481h7.836c.265 0 .481.216.481.48v.016c0 .264-.217.481-.48.481zm-.031 1.955H3.27a.482.482 0 0 1-.48-.48v-.017c0-.264.216-.48.48-.48h7.836c.265 0 .48.216.48.48v.016a.483.483 0 0 1-.481.481zm-4.862 1.95H3.297a.482.482 0 0 1-.481-.48v-.016c0-.265.216-.481.48-.481h2.948c.265 0 .48.216.48.48v.016c0 .266-.215.48-.48.481z"
+                                  ></path>
+                                </g>
+                              </svg>
+                            </i>
                             Check Details
                           </v-btn>
                         </v-col>
@@ -256,18 +273,6 @@
             {{ selectedOrder.order_tracking_number }}
           </v-chip>
         </div>
-<br>
-        <!-- Courier Tracking Number -->
-        <div>
-          <h1 class="text-subtitle-1 font-weight-medium mb-2">
-            <v-icon class="mr-1" color="primary">mdi-truck-fast</v-icon>
-                Status of Order - Cancelled
-          </h1>
-          <!-- <v-chip class="ml-9" color="green" dark label>
-            <v-icon left size="18"> mdi-pound </v-icon>
-            {{ selectedOrder.order_tracking_number }}
-          </v-chip> -->
-        </div>
 
         <!-- Action Button -->
         <div class="d-flex justify-end">
@@ -282,6 +287,18 @@
           >
             Close</v-btn
           >
+
+          <v-btn
+            @click="receiveOrder(selectedOrder.order_id)"
+            class="px-10 mr-3 text-capitalize"
+            color="green darken-1"
+            height="40"
+            width="150"
+            depressed
+            dark
+          >
+            Receive Item</v-btn
+          >
         </div>
       </v-card>
     </v-overlay>
@@ -292,16 +309,17 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
- 
 import buyerSidebar from '@/components/buyerSidebar'
 import buyerWelcome from '@/components/buyerWelcome'
- 
+import buyerTab from '@/components/buyerTab'
+import notifications from '~/components/notifications'
 
 export default {
   components: {
     buyerWelcome,
     buyerSidebar,
-     
+    buyerTab,
+    notifications,
   },
   data() {
     return {
@@ -323,7 +341,7 @@ export default {
           .firestore()
           .collection('order')
           .where('buyer_id', '==', user.uid)
-          .where('status', '==', 'cancelled')
+          .where('status', '==', 'shipping')
           .get()
           .then((querySnapshot) => {
             querySnapshot.forEach((orderRef) => {
@@ -354,9 +372,10 @@ export default {
                 product_name: '',
                 product_image: '',
 
-                // Buyer Data
-                buyer_name: '',
-                buyer_profile_photo: '',
+                // Seller Data
+                seller_name: '',
+                seller_shop_name: '',
+                seller_profile_photo: '',
               }
 
               // Get Product Info From Firebase
@@ -377,6 +396,7 @@ export default {
                 .get()
                 .then((productRef) => {
                   order_list.product_name = productRef.data().name
+                  order_list.seller_shop_name = sellerRef.data().shop_name
                   order_list.product_image = productRef.data().image
                 })
 
@@ -384,11 +404,11 @@ export default {
               firebase
                 .firestore()
                 .collection('users')
-                .doc(orderRef.data().buyer_id)
+                .doc(orderRef.data().seller_id)
                 .get()
-                .then((buyerRef) => {
-                  order_list.buyer_name = buyerRef.data().name
-                  order_list.buyer_profile_photo = buyerRef.data().profile_photo
+                .then((sellerRef) => {
+                  order_list.seller_name = sellerRef.data().name
+                  order_list.seller_profile_photo = sellerRef.data().profile_photo
                 })
 
               // Push into array
@@ -420,6 +440,30 @@ export default {
         order_tracking_number: order_tracking_number,
       }
     },
+
+    async receiveOrder(order_id) {
+      try {
+        firebase
+          .firestore()
+          .collection('order')
+          .doc(order_id)
+          .update({
+            status: 'completed',
+          })
+          .then(() => {
+            this.$router.push('/buyer/purchase/completed')
+          })
+      } catch (error) {
+        console.log(error.message)
+        this.$store.commit('SET_NOTIFICATION', {
+          alert: error.message,
+          alertIcon: 'mdi-alert-circle',
+          alertIconStyle: 'mr-2 align-self-top',
+          colorIcon: 'red darken-1',
+          snackbar: true,
+        })
+      }
+    },
   },
 }
 </script>
@@ -431,9 +475,5 @@ export default {
 
 .text-color-blue {
   color: #1976d2;
-}
-
-.text-color-green {
-  color: #41b883;
 }
 </style>

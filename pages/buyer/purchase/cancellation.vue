@@ -11,7 +11,7 @@
 
           <v-col cols="9">
             <v-card class="pa-5 mb-15" flat>
-               
+              <buyerTab />
 
               <v-divider></v-divider>
 
@@ -95,10 +95,10 @@
               >
                 <div class="px-3 d-flex align-center">
                   <v-avatar class="mr-2" size="28">
-                    <img :src="order.buyer_profile_photo" alt="..." />
+                    <img :src="order.seller_profile_photo" alt="..." />
                   </v-avatar>
                   <h1 class="text-subtitle-2 font-weight-regular">
-                    {{ order.buyer_name }}
+                    {{ order.seller_name }} ({{ order.seller_shop_name }} Shop)
                   </h1>
 
                   <h1
@@ -148,10 +148,10 @@
                       <v-row class="my-auto">
                         <v-col cols="12" class="px-0">
                           <h1
-                            v-if="order.order_status == 'to_ship'"
+                            v-if="order.order_status == 'cancelled'"
                             class="text-subtitle-2"
                           >
-                            To Ship
+                            Cancelled
                           </h1>
                         </v-col>
                       </v-row>
@@ -177,20 +177,11 @@
                       <v-row class="my-auto">
                         <v-col cols="12" class="px-0">
                           <v-btn
-                            @click="
-                              onShipNow(
-                                order.order_id,
-                                order.order_name,
-                                order.order_address,
-                                order.order_phone_number,
-                                order.courier_name
-                              )
-                            "
                             class="text-subtitle-2 px-0 text-capitalize text-color-blue font-weight-regular"
                             text
+                            disabled
                           >
-                            <v-icon class="mr-1" size="18">mdi-truck</v-icon>
-                            Cancel
+                            Not available
                           </v-btn>
                         </v-col>
                       </v-row>
@@ -203,85 +194,6 @@
         </v-row>
       </div>
     </div>
-
-    <!-- Ship Product Overlay -->
-    <v-overlay :opacity="opacity" :value="shipProduct">
-      <v-card
-        class="mx-auto pa-10 black--text d-block align-center"
-        min-height="300"
-        width="600"
-        color="white"
-        light
-        outlined
-      >
-        <!-- Order ID -->
-        <div class="mb-4">
-          <h1 class="text-subtitle-1 font-weight-medium mb-1">
-            <v-icon class="mr-1" color="primary">mdi-barcode-scan</v-icon>
-            Order ID
-          </h1>
-          <h1 class="text-subtitle-2 font-weight-regular ml-9 text-color-grey">
-            {{ selectedOrder.order_id }}
-          </h1>
-        </div>
-
-        <!-- Delivery Address -->
-        <div class="mb-4">
-          <h1 class="text-subtitle-1 font-weight-medium mb-1">
-            <v-icon class="mr-1" color="primary"
-              >mdi-office-building-marker-outline</v-icon
-            >
-            Delivery Address
-          </h1>
-          <h1 class="text-subtitle-2 font-weight-regular ml-9 text-color-grey">
-            {{ selectedOrder.order_name }},
-            {{ selectedOrder.order_phone_number }}
-          </h1>
-          <h1 class="text-subtitle-2 font-weight-regular ml-9 text-color-grey">
-            {{ selectedOrder.order_address }}
-          </h1>
-        </div>
-
-        <!-- Courier Tracking Number -->
-        <div>
-          <h1 class="text-subtitle-1 font-weight-medium mb-2">
-            <!-- <v-icon class="mr-1" color="primary">mdi-truck-fast</v-icon> --> 
-            Reason of Cancellation 
-          </h1>
-          <v-text-field
-            v-model="tracking_number"
-            placeholder="Please state your reason"
-            outlined
-            dense
-          ></v-text-field>
-        </div>
-
-        <!-- Action Button -->
-        <div class="d-flex justify-end">
-          <v-btn
-            @click="shipProduct = false"
-            class="px-10 mr-3 text-capitalize"
-            color="grey lighten-1"
-            height="40"
-            width="150"
-            depressed
-            dark
-          >
-            Cancel</v-btn
-          >
-          <v-btn
-            @click="shipNow(selectedOrder.order_id, tracking_number)"
-            class="px-10 ml-3 text-capitalize"
-            color="green darken-1"
-            height="40"
-            width="150"
-            depressed
-          >
-            <span class="text-color-white"> Cancel Order </span>
-          </v-btn>
-        </div>
-      </v-card>
-    </v-overlay>
   </v-app>
 </template>
 
@@ -291,21 +203,23 @@ import 'firebase/auth'
 import 'firebase/firestore'
 import buyerSidebar from '@/components/buyerSidebar'
 import buyerWelcome from '@/components/buyerWelcome'
+import buyerTab from '@/components/buyerTab'
 
 export default {
   components: {
-     buyerWelcome,
+    buyerWelcome,
     buyerSidebar,
+    buyerTab,
   },
+
   data() {
     return {
       // Order Data
       orders: [],
       selectedOrder: '',
-      tracking_number: '',
 
       // Ship Product Overlay
-      shipProduct: false,
+      shippingDetails: false,
       opacity: 1,
     }
   },
@@ -318,7 +232,7 @@ export default {
           .firestore()
           .collection('order')
           .where('buyer_id', '==', user.uid)
-          .where('status', '==', 'to_ship')
+          .where('status', '==', 'cancelled')
           .get()
           .then((querySnapshot) => {
             querySnapshot.forEach((orderRef) => {
@@ -340,6 +254,7 @@ export default {
                 order_status: orderRef.data().status,
                 order_name: orderRef.data().name,
                 order_count: orderRef.data().count,
+                order_tracking_number: orderRef.data().tracking_id,
 
                 // Courier Data
                 courier_name: '',
@@ -349,8 +264,8 @@ export default {
                 product_image: '',
 
                 // Buyer Data
-                buyer_name: '',
-                buyer_profile_photo: '',
+                seller_name: '',
+                seller_profile_photo: '',
               }
 
               // Get Product Info From Firebase
@@ -378,11 +293,11 @@ export default {
               firebase
                 .firestore()
                 .collection('users')
-                .doc(orderRef.data().buyer_id)
+                .doc(orderRef.data().seller_id)
                 .get()
-                .then((buyerRef) => {
-                  order_list.buyer_name = buyerRef.data().name
-                  order_list.buyer_profile_photo = buyerRef.data().profile_photo
+                .then((sellerRef) => {
+                  order_list.seller_name = sellerRef.data().name
+                  order_list.seller_profile_photo = sellerRef.data().profile_photo
                 })
 
               // Push into array
@@ -394,59 +309,12 @@ export default {
       }
     })
   },
-
-  methods: {
-    onShipNow(
-      order_id,
-      order_name,
-      order_address,
-      order_phone_number,
-      order_courier_name
-    ) {
-      this.shipProduct = true
-      this.selectedOrder = {
-        order_id: order_id,
-        order_name: order_name,
-        order_address: order_address,
-        order_phone_number: order_phone_number,
-        order_courier_name: order_courier_name,
-      }
-    },
-
-    async shipNow(order_id, tracking_number) {
-      try {
-        if (tracking_number == '') {
-          // Need to put alert notification by @haziq
-          console.log('Please let me know your reason')
-        } else {
-          firebase
-            .firestore()
-            .collection('order')
-            .doc(order_id)
-            .update({
-              // tracking_id: tracking_number,
-              status: 'cancelled',
-            })
-            .then(() => {
-              this.$router.push('/buyer/buyercenter')
-            })
-        }
-      } catch (error) {
-        // Need to put alert notification by @haziq
-        console.log(error.message)
-      }
-    },
-  },
 }
 </script>
 
 <style scoped>
 .text-color-grey {
   color: #808080;
-}
-
-.text-color-white {
-  color: white;
 }
 
 .text-color-blue {

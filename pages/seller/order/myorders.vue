@@ -1,6 +1,9 @@
 <template>
   <v-app>
     <div>
+      <!-- notification -->
+      <notifications />
+
       <div class="section"><sellerAppHero /></div>
 
       <div>
@@ -446,13 +449,16 @@ import 'firebase/firestore'
 import sellerSidebar from '@/components/sellerSidebar'
 import sellerAppHero from '@/components/sellerHero'
 import tab from '@/components/Tab'
+import notifications from '~/components/notifications'
 
 export default {
   components: {
     sellerAppHero,
     sellerSidebar,
     Tab: tab,
+    notifications,
   },
+
   data() {
     return {
       // Order Data
@@ -592,8 +598,13 @@ export default {
     async shipNow(order_id, tracking_number) {
       try {
         if (tracking_number == '') {
-          // Need to put alert notification by @haziq
-          console.log('Please fill in tracking number')
+          this.$store.commit('SET_NOTIFICATION', {
+            alert: 'Please fill in tracking number',
+            alertIcon: 'mdi-alert-circle',
+            alertIconStyle: 'mr-2 align-self-top',
+            colorIcon: 'red darken-1',
+            snackbar: true,
+          })
         } else {
           firebase
             .firestore()
@@ -608,8 +619,14 @@ export default {
             })
         }
       } catch (error) {
-        // Need to put alert notification by @haziq
         console.log(error.message)
+        this.$store.commit('SET_NOTIFICATION', {
+          alert: error.message,
+          alertIcon: 'mdi-alert-circle',
+          alertIconStyle: 'mr-2 align-self-top',
+          colorIcon: 'red darken-1',
+          snackbar: true,
+        })
       }
     },
   },

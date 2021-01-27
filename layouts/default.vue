@@ -8,7 +8,7 @@
     </div>
     <div class="hero-footer">
       <div class="container">
-        <p>Made with love from Paris</p>
+        <p>&copy; Group 2.5 (Software Maintenace & Evolution)</p>
       </div>
     </div>
   </v-app>

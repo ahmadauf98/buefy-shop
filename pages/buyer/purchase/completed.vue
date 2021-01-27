@@ -11,7 +11,7 @@
 
           <v-col cols="9">
             <v-card class="pa-5 mb-15" flat>
-           
+              <buyerTab />
 
               <v-divider></v-divider>
 
@@ -95,10 +95,10 @@
               >
                 <div class="px-3 d-flex align-center">
                   <v-avatar class="mr-2" size="28">
-                    <img :src="order.buyer_profile_photo" alt="..." />
+                    <img :src="order.seller_profile_photo" alt="..." />
                   </v-avatar>
                   <h1 class="text-subtitle-2 font-weight-regular">
-                    {{ order.buyer_name }}
+                    {{ order.seller_name }} ({{ order.seller_shop_name }} Shop)
                   </h1>
 
                   <h1
@@ -257,16 +257,6 @@
           </v-chip>
         </div>
 
-        <br>
-        <!-- Status -->
-        <div>
-          <h1 class="text-subtitle-1 font-weight-medium mb-2">
-            <v-icon class="mr-1" color="primary">mdi-truck-fast</v-icon>
-                Status of Order - Completed
-          </h1>
-          
-        </div>
-
         <!-- Action Button -->
         <div class="d-flex justify-end">
           <v-btn
@@ -290,16 +280,15 @@
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
- 
 import buyerSidebar from '@/components/buyerSidebar'
 import buyerWelcome from '@/components/buyerWelcome'
- 
+import buyerTab from '@/components/buyerTab'
 
 export default {
   components: {
     buyerWelcome,
     buyerSidebar,
-     
+    buyerTab,
   },
   data() {
     return {
@@ -353,8 +342,8 @@ export default {
                 product_image: '',
 
                 // Buyer Data
-                buyer_name: '',
-                buyer_profile_photo: '',
+                seller_name: '',
+                seller_profile_photo: '',
               }
 
               // Get Product Info From Firebase
@@ -382,11 +371,11 @@ export default {
               firebase
                 .firestore()
                 .collection('users')
-                .doc(orderRef.data().buyer_id)
+                .doc(orderRef.data().seller_id)
                 .get()
-                .then((buyerRef) => {
-                  order_list.buyer_name = buyerRef.data().name
-                  order_list.buyer_profile_photo = buyerRef.data().profile_photo
+                .then((sellerRef) => {
+                  order_list.seller_name = sellerRef.data().name
+                  order_list.seller_profile_photo = sellerRef.data().profile_photo
                 })
 
               // Push into array
