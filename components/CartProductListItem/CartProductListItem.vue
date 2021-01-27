@@ -1,120 +1,165 @@
 <template>
   <v-card class="pa-5 mb-8" flat>
-    <article class="media">
-      <div class="media-left">
-        <!-- Product Image -->
+    <v-row>
+      <!-- Product Image -->
+      <v-col cols="2">
         <v-img
           :src="product.image"
           :alt="`Image of ${product.name}`"
           width="200"
           height="200"
         ></v-img>
-      </div>
-      <div class="media-content">
-        <div class="content">
-          <p v-if="product.sale &amp;&amp; 'true'">
-            <strong>{{ product.name }}</strong
-            ><br />
-            <v-chip color="green" label text-color="white" small> Sale </v-chip>
-            <br /><span class="itemCount">{{ product_quantity }}</span> x
-            {{ product.sale_price | ringgit }} = RM{{
-              (product_quantity * product.sale_price).toFixed(2)
-            }}
-          </p>
-          <p v-else>
-            <strong>{{ product.name }}</strong
-            ><br /><span class="itemCount">{{ product_quantity }}</span> x
-            {{ product.price | ringgit }} = RM{{
-              (product_quantity * product.price).toFixed(2)
-            }}
-          </p>
+      </v-col>
 
+      <!-- Product Info -->
+      <v-col cols="3" class="d-flex align-center justify-start">
+        <div class="pl-8">
+          <!-- Sale Product Price -->
+          <div v-if="product.sale &amp;&amp; 'true'">
+            <p class="text-subtitle-1 font-weight-bold mb-0">
+              {{ product.name }}
+            </p>
+
+            <v-chip class="my-2" color="green" label text-color="white" small>
+              Product On Sale
+            </v-chip>
+
+            <p class="text-subtitle-2 font-weight-regular">
+              {{ product_quantity }} x
+              {{ Number(product.sale_price).toFixed(2) | ringgit }}
+            </p>
+          </div>
+
+          <!-- Normal Product Price -->
+          <div v-else>
+            <p class="text-subtitle-1 font-weight-bold mb-0">
+              {{ product.name }}
+            </p>
+
+            <v-chip class="my-2" color="primary" label text-color="white" small>
+              Normal Price
+            </v-chip>
+
+            <p class="text-subtitle-2 font-weight-regular">
+              {{ product_quantity }} x
+              {{ Number(product.price).toFixed(2) | ringgit }}
+            </p>
+          </div>
+        </div>
+      </v-col>
+
+      <!-- Courier -->
+      <v-col cols="3" class="d-flex align-center justify-start">
+        <div>
           <h1 class="text-subtitle-2 font-weight-regular text-color-grey mb-1">
             <v-icon color="grey" class="mr-1">mdi-truck-fast</v-icon>
             Selected Courier:
           </h1>
 
           <div class="panel panel-default card-input box-width">
-            <div class="panel-body">
-              <v-card class="pa-2" tile flat>
-                <v-row>
-                  <!-- Courier Brand Image -->
-                  <v-col cols="4">
-                    <v-img
-                      class="mx-auto"
-                      aspect-ratio="1.7"
-                      width="40"
-                      height="40"
-                      :src="courier.courier_img"
-                      alt="..."
-                    ></v-img>
-                  </v-col>
+            <v-card class="pa-2" tile flat>
+              <v-row>
+                <!-- Courier Brand Image -->
+                <v-col cols="4" class="d-flex align-center">
+                  <v-img
+                    class="mx-auto"
+                    aspect-ratio="1.7"
+                    width="40"
+                    height="40"
+                    :src="courier.courier_img"
+                    alt="..."
+                  ></v-img>
+                </v-col>
 
-                  <!-- Courier Rating -->
-                  <v-col class="ml-n2 my-auto">
-                    <div class="d-flex align-center">
-                      <h1
-                        class="text-subtitle-2 font-weight-regular text-color-black"
-                      >
-                        {{ courier.brand_name }}
-                      </h1>
-                    </div>
-                    <div class="d-flex align-center">
-                      <span
-                        class="text-color-grey text--lighten-2 caption mr-1"
-                      >
-                        Fee: RM {{ fee.toFixed(2) }}
-                      </span>
-                    </div>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </div>
+                <!-- Courier Info-->
+                <v-col class="ml-n2 mr-n2 my-auto">
+                  <div class="d-flex align-center">
+                    <h1
+                      class="text-subtitle-2 font-weight-regular text-color-black mb-0"
+                    >
+                      {{ courier.brand_name }}
+                    </h1>
+                  </div>
+                  <div class="d-flex align-center">
+                    <span class="text-color-grey text--lighten-2 caption mr-1">
+                      Fee: RM {{ fee.toFixed(2) }}
+                    </span>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card>
           </div>
         </div>
-        <nav class="level is-mobile">
-          <div class="level-left">
-            <!-- Quantity Button -->
-            <v-row class="my-3 mx-0 d-flex align-center">
-              <v-card
-                tile
-                outlined
-                height="35"
-                width="35"
-                class="d-flex justify-center align-center"
-                @click="minusQuantity()"
-              >
-                <v-icon>mdi-minus</v-icon>
-              </v-card>
-              <v-card
-                tile
-                outlined
-                height="35"
-                width="60"
-                class="d-flex align-center justify-center"
-                >{{ product_quantity }}</v-card
-              >
-              <v-card
-                tile
-                outlined
-                height="35"
-                width="35"
-                class="d-flex justify-center align-center"
-                @click="addQuantity()"
-              >
-                <v-icon>mdi-plus</v-icon>
-              </v-card>
-            </v-row>
-            <a
-              class="level-item removeItem pl-4"
-              @click="deleteProduct = true"
-              title="Remove"
-              ><span class="icon is-small"><i class="fa fa-trash-alt"></i></span
-            ></a>
-          </div>
-        </nav>
-      </div>
-    </article>
+      </v-col>
+
+      <!-- Total Price -->
+      <v-col cols="2" class="d-flex align-center justify-start">
+        <div>
+          <h1
+            v-if="product.sale &amp;&amp; 'true'"
+            class="text-subtitle-2 font-weight-regular mb-1"
+          >
+            Total Price:
+            <span class="font-weight-bold">
+              RM{{
+                (product_quantity * product.sale_price + fee).toFixed(2)
+              }}</span
+            >
+          </h1>
+
+          <h1 v-else class="text-subtitle-2 font-weight-regular mb-1">
+            Total Price:
+            <span class="font-weight-bold">
+              RM{{ (product_quantity * product.price + fee).toFixed(2) }}</span
+            >
+          </h1>
+        </div>
+      </v-col>
+
+      <!-- Quantity Button -->
+      <v-col cols="2" class="d-flex align-center justify-start">
+        <div class="level-left">
+          <v-row class="my-3 mx-0 d-flex align-center">
+            <v-card
+              tile
+              outlined
+              height="35"
+              width="35"
+              class="d-flex justify-center align-center"
+              @click="minusQuantity()"
+            >
+              <v-icon>mdi-minus</v-icon>
+            </v-card>
+            <v-card
+              tile
+              outlined
+              height="35"
+              width="60"
+              class="d-flex align-center justify-center"
+              >{{ product_quantity }}</v-card
+            >
+            <v-card
+              tile
+              outlined
+              height="35"
+              width="35"
+              class="d-flex justify-center align-center"
+              @click="addQuantity()"
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-card>
+          </v-row>
+          <a
+            class="level-item removeItem pl-4"
+            @click="deleteProduct = true"
+            title="Remove"
+            ><span class="icon is-small"><i class="fa fa-trash-alt"></i></span
+          ></a>
+        </div>
+      </v-col>
+    </v-row>
+
+    <!-- To Delete Product -->
     <v-overlay :opacity="opacity" :value="deleteProduct">
       <v-card
         class="mx-auto py-5 px-10 black--text d-block align-center"

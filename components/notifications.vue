@@ -9,11 +9,11 @@
       dark
       top
     >
-      <div class="d-flex justify-center align-center text-center">
-        <v-icon :class="notification.alertIconStyle" color="white" size="40px">{{
+      <div class="d-flex justify-center align-center">
+        <v-icon :class="notification.alertIconStyle" color="white">{{
           notification.alertIcon
         }}</v-icon>
-        <span class="font-weight-medium text-white">{{
+        <span class="font-weight-medium text-color-white">{{
           notification.alert
         }}</span>
       </div>
@@ -31,3 +31,9 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.text-color-white {
+  color: white;
+}
+</style>

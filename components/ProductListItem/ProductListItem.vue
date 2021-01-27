@@ -49,16 +49,31 @@
                 <v-col cols="12">
                   <v-row class="ma-0 pa-0">
                     <!-- Product Price -->
-                    <v-col cols="6" class="ma-0 pa-0">
+                    <v-col cols="9" class="ma-0 pa-0">
                       <h1
+                        v-if="product.sale == false"
                         class="text-subtitle-1 text-left font-weight-bold text-color-blue"
                       >
                         RM{{ product.price.toFixed(2) }}
                       </h1>
+
+                      <h1
+                        v-else
+                        class="text-subtitle-1 text-left font-weight-bold text-color-blue"
+                      >
+                        RM{{ product.sale_price.toFixed(2) }}
+                        <span
+                          class="text-caption text-decoration-line-through font-weight-regular text-color-grey"
+                          >RM {{ product.price.toFixed(2) }}</span
+                        >
+                      </h1>
                     </v-col>
 
                     <!-- Product Sales -->
-                    <v-col cols="6" class="ma-0 pa-0">
+                    <v-col
+                      cols="3"
+                      class="ma-0 pa-0 d-flex align-center justify-end"
+                    >
                       <h1
                         class="text-subtitle-2 text-left text-color-grey text-right"
                       >
