@@ -241,6 +241,7 @@
                 <v-row>
                   <v-col>
                     <v-btn
+                      v-if="userUid != ''"
                       class="text-subtitle-2 font-weight-regular text-capitalize mt-2"
                       color="primary"
                       :disabled="stock == 0"
@@ -251,6 +252,19 @@
                     >
                       <v-icon class="mr-1" size="20">mdi-cart-plus</v-icon>
                       Add To Cart
+                    </v-btn>
+
+                    <v-btn
+                      v-else
+                      class="text-subtitle-2 font-weight-regular text-capitalize mt-2"
+                      color="primary"
+                      tile
+                      outlined
+                      large
+                      to="/buyer/login"
+                    >
+                      <v-icon class="mr-1" size="20">mdi-login</v-icon>
+                      Login
                     </v-btn>
                   </v-col>
                 </v-row>
@@ -313,12 +327,26 @@
               <v-col cols="3" class="ml-auto my-auto">
                 <div class="d-flex justify-center">
                   <v-btn
+                    v-if="userUid != ''"
                     class="text-subtitle-1 text-capitalize"
                     color="primary"
                     outlined
                     tile
                     large
                     to="/seller"
+                  >
+                    <v-icon class="mr-1" size="20">mdi-store</v-icon>
+                    Become a seller</v-btn
+                  >
+
+                  <v-btn
+                    v-else
+                    class="text-subtitle-1 text-capitalize"
+                    color="primary"
+                    outlined
+                    tile
+                    large
+                    to="/buyer/login"
                   >
                     <v-icon class="mr-1" size="20">mdi-store</v-icon>
                     Become a seller</v-btn
